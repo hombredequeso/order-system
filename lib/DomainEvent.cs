@@ -62,6 +62,10 @@ namespace CarrierPidgin.Lib
     {
         public string[] Rel { get; set; }
         public string Href { get; set; }
+
+        public static string Next = "next";
+        public static string Previous = "prev";
+        public static string Self = "self";
     }
 
     public class TransportHeader

@@ -108,14 +108,14 @@ namespace CarrierPidgin.EventBus.Module
             var links = GetLinks(range);
             var currentPage = GetPageForItem(range.Start, range.Count);
             UriBuilder.Path = $"teststream/{range.Start},{range.End}";
-            links.Add(new Link(){Rel = new[]{"self"}, Href = UriBuilder.ToString()});
+            links.Add(new Link(){Rel = new[]{Link.Self}, Href = UriBuilder.ToString()});
             if (currentPage > 0)
             {
                 UriBuilder.Path = $"teststream/{range.Start - range.Count},{range.End - range.Count}";
 
                 links.Add(new Link()
                 {
-                    Rel = new[] {"prev"},
+                    Rel = new[] {Link.Previous},
                     Href = UriBuilder.ToString()
                 });
             }
@@ -125,7 +125,7 @@ namespace CarrierPidgin.EventBus.Module
 
                 links.Add(new Link()
                 {
-                    Rel = new[] {"next"},
+                    Rel = new[] {Link.Next},
                     Href = UriBuilder.ToString()
                 });
             }

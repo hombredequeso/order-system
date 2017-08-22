@@ -53,18 +53,45 @@ namespace CarrierPidgin.ServiceA
         }
     }
 
+    public class PollState
+    {
+        public PollState(string nextUrl, int delay)
+        {
+            NextUrl = nextUrl;
+            Delay = delay;
+        }
+
+        public string NextUrl { get; }
+        public int Delay { get; }
+
+        public bool CanPoll()
+        {
+            return !string.IsNullOrEmpty(NextUrl);
+        }
+
+        public bool ShouldDelay()
+        {
+            return Delay >= 0;
+        }
+    }
+
     public static class TransportProcessor
     {
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
         public static int LastEventNumber = -1;
         public static PollState ProcessTransportMessage(PollState pollStatus, TransportMessage transportMessage)
         {
-            // TODO: need to ensure they are sequential (possibly, or not, depending on domain)
             List<DomainEvent> unprocessedMessages = transportMessage
                 .Messages
                 .Where(x => (int) (x.Header.EventNumber) > LastEventNumber)
                 .OrderBy(x => x.Header.EventNumber)
                 .ToList();
+
+            var prevLink = transportMessage.Header.Links.SingleOrDefault(l => l.Rel.Contains(Link.Previous));
+            if (unprocessedMessages.Any() &&
+                prevLink != null &&
+                unprocessedMessages.Min(x => (int)x.Header.EventNumber) != LastEventNumber + 1)
+                return new PollState(prevLink.Href, 0);
 
             var initialState = MessageProcessingContext.Start();
             var finalState = unprocessedMessages.Aggregate(initialState, TransportProcessor.ProcessNext);
@@ -73,20 +100,29 @@ namespace CarrierPidgin.ServiceA
                 .Max();
 
 
-            //unprocessedMessages.ForEach(MessageProcessor.ProcessMessage);
-
-
-            var nextLink = transportMessage.Header.Links.SingleOrDefault(l => l.Rel.Contains("next"));
-            var selfLink = transportMessage.Header.Links.Single(l => l.Rel.Contains("self"));
+            var nextLink = transportMessage.Header.Links.SingleOrDefault(l => l.Rel.Contains(Link.Next));
+            var selfLink = transportMessage.Header.Links.Single(l => l.Rel.Contains(Link.Self));
             return new PollState(
                 (nextLink ?? selfLink).Href,
                 1000);
         }
 
-        private static MessageProcessingContext ProcessNext(MessageProcessingContext initContext, DomainEvent domainEvent)
+        private static MessageProcessingContext ProcessNext(
+            MessageProcessingContext processingContext, 
+            DomainEvent domainEvent)
         {
-            MessageProcessor.ProcessMessage(domainEvent);
-            return initContext.AddSuccess(domainEvent);
+            if (processingContext.ProcessedUnsuccessfully.Any())
+                return processingContext.AddUnprocessed(domainEvent);
+
+            var processingResult = MessageProcessor.ProcessMessage(domainEvent);
+
+            if (processingResult.GetType() == typeof(MessageProcessor.ProcessMessageSuccess))
+                return processingContext.AddSuccess(domainEvent);
+            if (processingResult.GetType() == typeof(MessageProcessor.DeserializationError))
+                return processingContext.AddFailure(domainEvent);
+            if (processingResult.GetType() == typeof(MessageProcessor.HandlerError))
+                return processingContext.AddFailure(domainEvent);
+            throw new Exception("Unhandled case");
         }
 
         public static PollState ProcessPollError(PollState ps, Poller.PollingError error)
@@ -119,42 +155,30 @@ namespace CarrierPidgin.ServiceA
         }
     }
 
-    public class PollState
-    {
-        public PollState(string nextUrl, int delay)
-        {
-            NextUrl = nextUrl;
-            Delay = delay;
-        }
-
-        public string NextUrl { get; }
-        public int Delay { get; }
-
-        public bool CanPoll()
-        {
-            return !string.IsNullOrEmpty(NextUrl);
-        }
-
-        public bool ShouldDelay()
-        {
-            return Delay >= 0;
-        }
-    }
-
 
     public static class MessageTransform
     {
-        public static Either<DeserializeError, TransportMessage> Deserialize(string s)
+        public static Either<DeserializeError, T> Deserialize<T>(Func<T> f)
         {
             try
             {
-                var m = JsonConvert.DeserializeObject<TransportMessage>(s);
-                return new Either<DeserializeError, TransportMessage>(m);
+                var m = f();
+                return new Either<DeserializeError, T>(m);
             }
             catch (JsonException e)
             {
-                return new Either<DeserializeError, TransportMessage>(new DeserializeError(e));
+                return new Either<DeserializeError, T>(new DeserializeError(e));
             }
+        }
+
+        public static Either<DeserializeError, T> Deserialize<T>(string s)
+        {
+            return Deserialize(() => JsonConvert.DeserializeObject<T>(s));
+        }
+
+        public static Either<DeserializeError, object> Deserialize(string s, Type t)
+        {
+            return Deserialize(() => JsonConvert.DeserializeObject(s, t));
         }
 
         public static async Task<Either<HttpError, string>> GetContent(HttpResponseMessage m)
@@ -226,7 +250,7 @@ namespace CarrierPidgin.ServiceA
                         error => new Either<PollingError, TransportMessage>(PollingError.ErrorMakingHttpRequest),
                         c =>
                         {
-                            var m = MessageTransform.Deserialize(c);
+                            var m = MessageTransform.Deserialize<TransportMessage>(c);
                             return m.Match(
                                 left => new Either<PollingError, TransportMessage>(PollingError
                                     .ErrorDeserializingContent),
@@ -311,6 +335,7 @@ namespace CarrierPidgin.ServiceA
         public List<DomainEvent> Unprocessed { get; }
         
     }
+
     public static class MessageProcessor
     {
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
@@ -322,19 +347,60 @@ namespace CarrierPidgin.ServiceA
             return null;
         }
 
-        public static void ProcessMessage(DomainEvent message)
+        public static IProcessMessageResult ProcessMessage(DomainEvent message)
         {
             Logger.Trace($"ProcessMessage: {message.Header}");
             var msgTypeStr = message.Header.EventType;
             var msgContent = message.Event;
             var msgType = TransportMessages.messageTypeLookup[msgTypeStr];
-            var msg = JsonConvert.DeserializeObject(msgContent, msgType);
-            var handlers = GetHandler(msgType);
-            handlers.ForEach(h =>
+
+            Either<MessageTransform.DeserializeError, object> msg2 = MessageTransform.Deserialize(msgContent, msgType);
+
+            return msg2.Match<IProcessMessageResult>(
+                e => new DeserializationError(e.Exception),
+                msg3 =>
+                {
+                    var handlers = GetHandler(msgType);
+                    try
+                    {
+                        handlers.ForEach(h =>
+                        {
+                            var methodInfo = h.GetType().GetMethods().First(m => m.Name == "Handle");
+                            methodInfo.Invoke(h, new[] {msg3});
+                        });
+                        return new ProcessMessageSuccess();
+                    }
+                    catch (Exception e)
+                    {
+                        return new HandlerError(e);
+                    }
+                });
+        }
+
+        public interface IProcessMessageResult
+        {
+        }
+        public class ProcessMessageSuccess: IProcessMessageResult
+        { }
+
+        public class DeserializationError: IProcessMessageResult
+        {
+            public DeserializationError(Exception exception)
             {
-                var methodInfo = h.GetType().GetMethods().First(m => m.Name == "Handle");
-                methodInfo.Invoke(h, new[] {msg});
-            });
+                Exception = exception;
+            }
+
+            public Exception Exception { get; }
+        }
+
+        public class HandlerError: IProcessMessageResult
+        {
+            public HandlerError(Exception exception)
+            {
+                Exception = exception;
+            }
+
+            public Exception Exception { get; }
         }
     }
 }
