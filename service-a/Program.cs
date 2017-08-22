@@ -54,23 +54,37 @@ namespace CarrierPidgin.ServiceA
 
     public static class TransportProcessor
     {
-        public static int lastEventNumber = -1;
+        public static int LastEventNumber = -1;
         public static PollState ProcessTransportMessage(PollState pollStatus, TransportMessage transportMessage)
         {
             // TODO: need to ensure they are sequential (possibly, or not, depending on domain)
             List<DomainEvent> unprocessedMessages = transportMessage
                 .Messages
-                .Where(x => (int) (x.Header.EventNumber) > lastEventNumber)
+                .Where(x => (int) (x.Header.EventNumber) > LastEventNumber)
                 .OrderBy(x => x.Header.EventNumber)
                 .ToList();
 
-            unprocessedMessages.ForEach(MessageProcessor.ProcessMessage);
+            var initialState = MessageProcessingContext.Start();
+            var finalState = unprocessedMessages.Aggregate(initialState, TransportProcessor.ProcessNext);
+            LastEventNumber = finalState.ProcessedSuccessfully.Select(x => (int) x.Header.EventNumber)
+                .Concat(new[] {LastEventNumber})
+                .Max();
+
+
+            //unprocessedMessages.ForEach(MessageProcessor.ProcessMessage);
+
 
             var nextLink = transportMessage.Header.Links.SingleOrDefault(l => l.Rel.Contains("next"));
             var selfLink = transportMessage.Header.Links.Single(l => l.Rel.Contains("self"));
             return new PollState(
                 (nextLink ?? selfLink).Href,
                 1000);
+        }
+
+        private static MessageProcessingContext ProcessNext(MessageProcessingContext initContext, DomainEvent domainEvent)
+        {
+            MessageProcessor.ProcessMessage(domainEvent);
+            return initContext.AddSuccess(domainEvent);
         }
 
         public static PollState ProcessPollError(PollState ps, Poller.PollingError error)
@@ -245,15 +259,17 @@ namespace CarrierPidgin.ServiceA
     {
         protected MessageProcessingContext()
         {
+            Unprocessed = new List<DomainEvent>();
             ProcessedSuccessfully = new List<DomainEvent>();
             ProcessedUnsuccessfully = new List<DomainEvent>();
         }
 
-
         public MessageProcessingContext(
             IEnumerable<DomainEvent> processedSuccessfully, 
-            IEnumerable<DomainEvent> processedUnsuccessfully)
+            IEnumerable<DomainEvent> processedUnsuccessfully, 
+            IEnumerable<DomainEvent> unprocessed)
         {
+            Unprocessed = unprocessed.ToList();
             ProcessedSuccessfully = processedSuccessfully.ToList();
             ProcessedUnsuccessfully = processedUnsuccessfully.ToList();
         }
@@ -267,18 +283,29 @@ namespace CarrierPidgin.ServiceA
         {
             return new MessageProcessingContext(
                 ProcessedSuccessfully.Concat(new[] {e}),
-                ProcessedUnsuccessfully);
+                ProcessedUnsuccessfully,
+                Unprocessed);
         }
 
         public  MessageProcessingContext AddFailure(DomainEvent e)
         {
             return new MessageProcessingContext(
                 ProcessedSuccessfully,
-                ProcessedUnsuccessfully.Concat(new[] {e}));
+                ProcessedUnsuccessfully.Concat(new[] {e}),
+                Unprocessed);
+        }
+
+        public  MessageProcessingContext AddUnprocessed(DomainEvent e)
+        {
+            return new MessageProcessingContext(
+                ProcessedSuccessfully,
+                ProcessedUnsuccessfully,
+                Unprocessed.Concat(new[] {e}));
         }
 
         public List<DomainEvent> ProcessedSuccessfully { get; }
         public List<DomainEvent> ProcessedUnsuccessfully { get; }
+        public List<DomainEvent> Unprocessed { get; }
         
     }
     public static class MessageProcessor
@@ -292,7 +319,7 @@ namespace CarrierPidgin.ServiceA
 
         public static void ProcessMessage(DomainEvent message)
         {
-            Debug.WriteLine($"ProcessMessage: {message.Header}");
+            Console.WriteLine($"ProcessMessage: {message.Header}");
             var msgTypeStr = message.Header.EventType;
             var msgContent = message.Event;
             var msgType = TransportMessages.messageTypeLookup[msgTypeStr];
