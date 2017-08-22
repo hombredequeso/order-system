@@ -48,6 +48,25 @@ namespace CarrierPidgin.EventBus.Module
                     .ToList();
         }
 
+        public static DomainEvent AddEvent(SomethingHappenedEvent e)
+        {
+            var lastEvent = Events.Last();
+                    var newEvent = new DomainEvent
+                        {
+                            Event = JsonConvert.SerializeObject(e),
+                            Header = new EventHeader
+                            {
+                                EventNumber = lastEvent.Header.EventNumber + 1,
+                                Timestamp = DateTimeOffset.UtcNow,
+                                EventType =  TransportMessages.GetMessageName(e),
+                                AggregateId = null,
+                                VersionNumber = null
+                            }
+                        };
+            Events.Add(newEvent);
+            return newEvent;
+        }
+
         public static EventRange GetCurrent()
         {
             // zero based page.

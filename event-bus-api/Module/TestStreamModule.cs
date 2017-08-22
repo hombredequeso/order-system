@@ -27,7 +27,7 @@ namespace CarrierPidgin.EventBus.Module
                 var result = TestStreamRepository.GetTransportMessage(eventRange);
                 return Response.AsJson(result);
             };
+
         }
-        
     }
 }

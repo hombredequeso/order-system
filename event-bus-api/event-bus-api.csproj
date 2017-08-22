@@ -78,6 +78,7 @@
     <Compile Include="Module\HomeModule.cs" />
     <Compile Include="Module\TestStreamModule.cs" />
     <Compile Include="Module\TestStreamRepository.cs" />
+    <Compile Include="Module\TestStreamTestPostsModule.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Startup.cs" />
