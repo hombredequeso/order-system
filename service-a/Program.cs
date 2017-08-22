@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -11,21 +10,23 @@ using System.Threading.Tasks;
 using CarrierPidgin.Lib;
 using Hdq.Lib;
 using Newtonsoft.Json;
+using NLog;
 
 namespace CarrierPidgin.ServiceA
 {
     internal class Program
     {
+        private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
         private static void Main(string[] args)
         {
-            Console.WriteLine("start");
+            Logger.Trace("Start");
             var cts = new CancellationTokenSource();
             var ct = cts.Token;
             MainInfinitePollerAsync(ct);
             Console.WriteLine("press enter to stop");
             Console.Read();
             cts.Cancel();
-            Console.WriteLine("done");
+            Logger.Trace("End");
         }
 
         public static async Task MainInfinitePollerAsync(CancellationToken ct)
@@ -54,6 +55,7 @@ namespace CarrierPidgin.ServiceA
 
     public static class TransportProcessor
     {
+        private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
         public static int LastEventNumber = -1;
         public static PollState ProcessTransportMessage(PollState pollStatus, TransportMessage transportMessage)
         {
@@ -93,22 +95,22 @@ namespace CarrierPidgin.ServiceA
             {
                 case Poller.PollingError.UnableToConnect:
                     {
-                        Console.WriteLine($"Error GET {ps.NextUrl}: Unable to connect to api");
+                        Logger.Warn($"Error GET {ps.NextUrl}: Unable to connect to api");
                         return new PollState(ps.NextUrl, 5000);
                     }
                 case Poller.PollingError.UnknownErrorOnGet:
                     {
-                        Console.WriteLine($"Error GET {ps.NextUrl}: Unknown error on get");
+                        Logger.Error($"Error GET {ps.NextUrl}: Unknown error on get");
                         return new PollState(ps.NextUrl, 10000);
                     }
                 case Poller.PollingError.ErrorMakingHttpRequest:
                     {
-                        Console.WriteLine($"Error GET {ps.NextUrl}: making request");
+                        Logger.Error($"Error GET {ps.NextUrl}: making request");
                         return new PollState(ps.NextUrl, 10000);
                     }
                 case Poller.PollingError.ErrorDeserializingContent:
                     {
-                        Console.WriteLine($"Error GET {ps.NextUrl}: This is probably never going to work");
+                        Logger.Warn($"Error GET {ps.NextUrl}: This is probably never going to work");
                         return new PollState(ps.NextUrl, 10000);
                     }
                 default:
@@ -193,6 +195,8 @@ namespace CarrierPidgin.ServiceA
 
     public static class Poller
     {
+        private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
+
         public enum PollingError
         {
             ErrorMakingHttpRequest,
@@ -212,7 +216,7 @@ namespace CarrierPidgin.ServiceA
 
         public static async Task<Either<PollingError, TransportMessage>> Poll(string path, CancellationToken ct)
         {
-            Console.WriteLine($"Poller.Poll GET {path}");
+            Logger.Trace($"Poller.Poll GET {path}");
             try
             {
                 using (var response = await Client.GetAsync(path, ct))
@@ -233,12 +237,11 @@ namespace CarrierPidgin.ServiceA
             }
             catch (Exception e)
             {
-                var allExceptionMessages = ExceptionProcessor.GetAllExceptionMessages(e);
-                Console.WriteLine(string.Join(Environment.NewLine, allExceptionMessages));
-                if (allExceptionMessages.Any(
-                    m => m.Contains("No connection could be made because the target machine actively refused it")))
-                    return new Either<PollingError, TransportMessage>(PollingError.UnableToConnect);
-                return new Either<PollingError, TransportMessage>(PollingError.UnknownErrorOnGet);
+                var allExceptionMessages = string.Join(Environment.NewLine, ExceptionProcessor.GetAllExceptionMessages(e));
+                Logger.Error($"Polling Error: {allExceptionMessages}");
+                return allExceptionMessages.Contains("No connection could be made because the target machine actively refused it")
+                    ? new Either<PollingError, TransportMessage>(PollingError.UnableToConnect)
+                    : new Either<PollingError, TransportMessage>(PollingError.UnknownErrorOnGet);
             }
         }
     }
@@ -310,6 +313,8 @@ namespace CarrierPidgin.ServiceA
     }
     public static class MessageProcessor
     {
+        private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
+
         public static List<object> GetHandler(Type messageType)
         {
             if (messageType == typeof(SomethingHappenedEvent))
@@ -319,7 +324,7 @@ namespace CarrierPidgin.ServiceA
 
         public static void ProcessMessage(DomainEvent message)
         {
-            Console.WriteLine($"ProcessMessage: {message.Header}");
+            Logger.Trace($"ProcessMessage: {message.Header}");
             var msgTypeStr = message.Header.EventType;
             var msgContent = message.Event;
             var msgType = TransportMessages.messageTypeLookup[msgTypeStr];

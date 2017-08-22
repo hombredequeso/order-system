@@ -1,5 +1,5 @@
-﻿using System;
-using CarrierPidgin.Lib;
+﻿using CarrierPidgin.Lib;
+using NLog;
 
 namespace CarrierPidgin.ServiceA
 {
@@ -10,9 +10,11 @@ namespace CarrierPidgin.ServiceA
 
     public class WidgetizeWhenSomethingHappenedEventHandler: IMessageHandler<SomethingHappenedEvent>
     {
+        private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
+
         public void Handle(SomethingHappenedEvent msg)
         {
-            Console.WriteLine("Widgetizing, because something happened.");
+            Logger.Trace($"Widgetizing - Something happened: {msg.Description}");
         }
     }
 }
