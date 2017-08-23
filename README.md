@@ -4,6 +4,13 @@ A project for demonstrating a very simple message bus over http transport. As su
 
 The design is loosely based on Vaughn Vernon's example in _Implementing Domain-Driven Design_, chapter 8.
 
+### Why Pidgin?
+No it's not misspelt. Originally I was going to call it carrier-pigeon, because it, you know, carries messages around.
+But the [fount of wisdom](https://en.wikipedia.org/wiki/Pidgin) has this to say about pidgin:
+"is a grammatically simplified means of communication that develops between two or more groups that do not have a language in common: typically, a mixture of simplified languages or a simplified primary language with other languages' elements included."
+
+And that language is http.
+
 ## Getting Started
 
 ### Prerequisites
