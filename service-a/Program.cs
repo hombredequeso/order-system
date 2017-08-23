@@ -14,6 +14,33 @@ using NLog;
 
 namespace CarrierPidgin.ServiceA
 {
+
+    public class MessageStreamLocation
+    {
+        public MessageStreamLocation(string scheme, string host, int port, string path)
+        {
+            Scheme = scheme;
+            Host = host;
+            Port = port;
+            Path = path;
+        }
+
+        public string Scheme { get; }
+        public string Host { get; }
+        public Int32 Port { get; }
+        public string Path { get; }
+    }
+
+    public static class ServiceLocator
+    {
+        public static MessageStreamLocation GetMessageStreamLocation(string streamName)
+        {
+            if (string.IsNullOrWhiteSpace(streamName))
+                return null;
+            return new MessageStreamLocation("http", "localhost", 8080, streamName);
+        }
+    }
+
     internal class Program
     {
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
@@ -22,26 +49,38 @@ namespace CarrierPidgin.ServiceA
             Logger.Trace("Start");
             var cts = new CancellationTokenSource();
             var ct = cts.Token;
-            MainInfinitePollerAsync(ct);
+
+            string streamName = "teststream";
+            var streamLocation = ServiceLocator.GetMessageStreamLocation(streamName);
+
+            MainInfinitePollerAsync(streamLocation, ct);
             Console.WriteLine("press enter to stop");
             Console.Read();
             cts.Cancel();
             Logger.Trace("End");
         }
 
-        public static async Task MainInfinitePollerAsync(CancellationToken ct)
+        public static async Task MainInfinitePollerAsync(MessageStreamLocation stream, CancellationToken ct)
         {
-            while (!ct.IsCancellationRequested)
+
+            using (HttpClient client = new HttpClient())
             {
-                var pollStatus = new PollState("http://localhost:8080/teststream", 1000);
-                while (pollStatus.CanPoll())
-                    pollStatus = await Execute(pollStatus, ct);
+                client.BaseAddress = new UriBuilder(stream.Scheme, stream.Host, stream.Port).Uri;
+                client.DefaultRequestHeaders.Accept.Clear();
+                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+
+                while (!ct.IsCancellationRequested)
+                {
+                    var pollStatus = new PollState("http://localhost:8080/teststream", 1000);
+                    while (pollStatus.CanPoll())
+                        pollStatus = await Execute(pollStatus, client, ct);
+                }
             }
         }
 
-        public static async Task<PollState> Execute(PollState ps, CancellationToken ct)
+        public static async Task<PollState> Execute(PollState ps, HttpClient client, CancellationToken ct)
         {
-            var transportMessage = await Poller.Poll(ps.NextUrl, ct);
+            var transportMessage = await Poller.Poll(ps.NextUrl, client, ct);
             var pollStatus = transportMessage.Match(
                 error => TransportProcessor.ProcessPollError(ps, error),
                 m => TransportProcessor.ProcessTransportMessage(ps, m));
@@ -229,21 +268,12 @@ namespace CarrierPidgin.ServiceA
             UnknownErrorOnGet
         }
 
-        private static readonly HttpClient Client = new HttpClient();
-
-        static Poller()
-        {
-            Client.BaseAddress = new Uri("http://localhost:8080/");
-            Client.DefaultRequestHeaders.Accept.Clear();
-            Client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-        }
-
-        public static async Task<Either<PollingError, TransportMessage>> Poll(string path, CancellationToken ct)
+        public static async Task<Either<PollingError, TransportMessage>> Poll(string path, HttpClient httpClient, CancellationToken ct)
         {
             Logger.Trace($"Poller.Poll GET {path}");
             try
             {
-                using (var response = await Client.GetAsync(path, ct))
+                using (HttpResponseMessage response = await httpClient.GetAsync(path, ct))
                 {
                     var content = await MessageTransform.GetContent(response);
                     return content.Match(
