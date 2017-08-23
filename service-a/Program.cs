@@ -392,28 +392,38 @@ namespace CarrierPidgin.ServiceA
             var msgTypeStr = message.Header.EventType;
             var msgContent = message.Event;
             var msgType = TransportMessages.messageTypeLookup[msgTypeStr];
+            int handlerRetryCount = 3;
 
             Either<MessageTransform.DeserializeError, object> msg2 = MessageTransform.Deserialize(msgContent, msgType);
 
-            return msg2.Match<IProcessMessageResult>(
+            return msg2.Match(
                 e => new DeserializationError(e.Exception),
-                msg3 =>
+                msg3 => Process(msg3, msgType, handlerRetryCount));
+        }
+
+
+        public static IProcessMessageResult Process(object msg, Type msgType, int retries)
+        {
+            var handlers = GetHandler(msgType);
+            try
+            {
+                handlers.ForEach(h =>
                 {
-                    var handlers = GetHandler(msgType);
-                    try
-                    {
-                        handlers.ForEach(h =>
-                        {
-                            var methodInfo = h.GetType().GetMethods().First(m => m.Name == "Handle");
-                            methodInfo.Invoke(h, new[] {msg3});
-                        });
-                        return new ProcessMessageSuccess();
-                    }
-                    catch (Exception e)
-                    {
-                        return new HandlerError(e);
-                    }
+                    var methodInfo = h.GetType().GetMethods().First(m => m.Name == "Handle");
+                    methodInfo.Invoke(h, new[] {msg});
                 });
+                return new ProcessMessageSuccess();
+            }
+            catch (Exception e)
+            {
+                if (retries == 0)
+                {
+                    Logger.Debug("Handler failed: Retries all used up. Give up");
+                    return new HandlerError(e);
+                }
+                Logger.Trace($"Handler failed: {retries} remaining");
+                return Process(msg, msgType, retries - 1);
+            }
         }
 
         public interface IProcessMessageResult

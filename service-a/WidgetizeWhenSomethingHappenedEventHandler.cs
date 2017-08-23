@@ -4,6 +4,12 @@ using NLog;
 
 namespace CarrierPidgin.ServiceA
 {
+    public class DummyHandlerException: Exception {
+        public DummyHandlerException(string failureMessage)
+            :base(failureMessage)
+        {}
+    }
+
     public class WidgetizeWhenSomethingHappenedEventHandler
     {
         public WidgetizeWhenSomethingHappenedEventHandler()
@@ -11,11 +17,10 @@ namespace CarrierPidgin.ServiceA
             _random = new Random();
         }
 
-        public static double FailureProbability { get; } = 0.3;
+        public static double FailureProbability { get; } = 0.95;
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
     
         private readonly Random _random;
-
 
         public void Handle(SomethingHappenedEvent msg)
         {
@@ -26,7 +31,7 @@ namespace CarrierPidgin.ServiceA
             {
                 var failureMessage = $"Randomized failure caused handler to throw exception. Probability value = {randomDouble}";
                 Logger.Trace($"Random handler failure : {failureMessage}");
-                throw new Exception(failureMessage);
+                throw new DummyHandlerException(failureMessage);
             }
         }
     }
