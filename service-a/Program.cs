@@ -118,6 +118,7 @@ namespace CarrierPidgin.ServiceA
     {
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
         public static int LastEventNumber = -1;
+
         public static PollState ProcessTransportMessage(PollState pollStatus, TransportMessage transportMessage)
         {
             List<DomainEvent> unprocessedMessages = transportMessage
@@ -126,10 +127,13 @@ namespace CarrierPidgin.ServiceA
                 .OrderBy(x => x.Header.EventNumber)
                 .ToList();
 
-            var prevLink = transportMessage.Header.Links.SingleOrDefault(l => l.Rel.Contains(Link.Previous));
-            if (unprocessedMessages.Any() &&
+            Link prevLink = transportMessage.Header.Links.SingleOrDefault(l => l.Rel.Contains(Link.Previous));
+            bool areUnprocessedMessagesInEarlierTransportMessage =
+                unprocessedMessages.Any() &&
                 prevLink != null &&
-                unprocessedMessages.Min(x => (int)x.Header.EventNumber) != LastEventNumber + 1)
+                unprocessedMessages.Min(x => (int) x.Header.EventNumber) != LastEventNumber + 1;
+
+            if (areUnprocessedMessagesInEarlierTransportMessage)
                 return new PollState(prevLink.Href, 0);
 
             var initialState = MessageProcessingContext.Start();
@@ -141,9 +145,14 @@ namespace CarrierPidgin.ServiceA
 
             var nextLink = transportMessage.Header.Links.SingleOrDefault(l => l.Rel.Contains(Link.Next));
             var selfLink = transportMessage.Header.Links.Single(l => l.Rel.Contains(Link.Self));
-            return new PollState(
-                (nextLink ?? selfLink).Href,
-                1000);
+
+            var finishedWithThisTransportMessage =
+                nextLink != null &&
+                unprocessedMessages.Count == finalState.ProcessedSuccessfully.Count;
+
+            return finishedWithThisTransportMessage ?
+                new PollState(nextLink.Href, 0) :
+                new PollState(selfLink.Href, 1000);
         }
 
         private static MessageProcessingContext ProcessNext(
