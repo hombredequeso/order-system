@@ -1,20 +1,31 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using CarrierPidgin.EventBus.Module;
 using CarrierPidgin.Lib;
 using Newtonsoft.Json;
 
-namespace CarrierPidgin.EventBus.Module
+namespace CarrierPidgin.EventBus.Dal
 {
+    public static class TransportMessageFactory
+    {
+        public static UriBuilder UriBuilder;
+
+        public static string scheme = "http";
+        public static string host = "localhost";
+        public static Int32 port = 8080;
+
+        static TransportMessageFactory()
+        {
+            UriBuilder = new UriBuilder(scheme, host, port);
+        }
+    }
+
     public static class TestStreamRepository
     {
         public static List<DomainEvent> Events;
         public static int EventsInStream = 27;
-        public static string streamName = "teststream";
-        public static string scheme = "http";
-        public static string host = "localhost";
-        public static Int32 port = 8080;
-        public static UriBuilder UriBuilder;
+        public static string StreamName = "teststream";
 
         public const ulong EventCount = 10;
         // hence, valid event stream will be:
@@ -24,7 +35,6 @@ namespace CarrierPidgin.EventBus.Module
 
         static TestStreamRepository()
         {
-            UriBuilder = new UriBuilder(scheme, host, port);
 
             DateTimeOffset baseTimestamp = DateTimeOffset.UtcNow;
 
@@ -92,43 +102,11 @@ namespace CarrierPidgin.EventBus.Module
             return subList;
         }
 
-        public static ulong GetPageForItem(ulong itemNumber, ulong pageSize)
-        {
-            return itemNumber / pageSize;
-        }
-
-        public static bool PageExists(ulong pageNumber, ulong pageSize)
-        {
-            return pageNumber * pageSize <= (ulong)Events.Count;
-        }
 
         public static TransportMessage GetTransportMessage(EventRange range)
         {
-            var evts = Get(range);
-            var links = GetLinks(range);
-            var currentPage = GetPageForItem(range.Start, range.Count);
-            UriBuilder.Path = $"teststream/{range.Start},{range.End}";
-            links.Add(new Link(){Rel = new[]{Link.Self}, Href = UriBuilder.ToString()});
-            if (currentPage > 0)
-            {
-                UriBuilder.Path = $"teststream/{range.Start - range.Count},{range.End - range.Count}";
-
-                links.Add(new Link()
-                {
-                    Rel = new[] {Link.Previous},
-                    Href = UriBuilder.ToString()
-                });
-            }
-            if (PageExists(currentPage + 1, range.Count))
-            {
-                UriBuilder.Path = $"teststream/{range.Start + range.Count},{range.End + range.Count}";
-
-                links.Add(new Link()
-                {
-                    Rel = new[] {Link.Next},
-                    Href = UriBuilder.ToString()
-                });
-            }
+            List<DomainEvent> evts = Get(range);
+            var links = LinkBuilder.GetLinks(TransportMessageFactory.UriBuilder, StreamName, range, evts.Count);
 
             return new TransportMessage()
             {
@@ -138,16 +116,52 @@ namespace CarrierPidgin.EventBus.Module
                     Links = links
                 }
             };
-
-
-
         }
+    }
 
-        private static List<Link> GetLinks(EventRange range)
+    public static class LinkBuilder
+    {
+        public static List<Link> GetLinks(
+            UriBuilder uriBuilder, 
+            string eventStreamName,
+            EventRange range, 
+            int itemsOnCurrentPage)
         {
             var links = new List<Link>();
+            var currentPage = GetPageForItem(range.Start, range.Count);
+            uriBuilder.Path = $"{eventStreamName}/{range.Start},{range.End}";
+            links.Add(new Link() {Rel = new[] {Link.Self}, Href = uriBuilder.ToString()});
+            if (currentPage > 0)
+            {
+                uriBuilder.Path = $"{eventStreamName}/{range.Start - range.Count},{range.End - range.Count}";
 
+                links.Add(new Link()
+                {
+                    Rel = new[] {Link.Previous},
+                    Href = uriBuilder.ToString()
+                });
+            }
+            if (NextPageExists((int)range.Count, itemsOnCurrentPage))
+            {
+                uriBuilder.Path = $"{eventStreamName}/{range.Start + range.Count},{range.End + range.Count}";
+
+                links.Add(new Link()
+                {
+                    Rel = new[] {Link.Next},
+                    Href = uriBuilder.ToString()
+                });
+            }
             return links;
+        }
+
+        public static bool NextPageExists(int itemsPerPage, int itemsOnCurrentPage)
+        {
+            return itemsOnCurrentPage == itemsPerPage;
+        }
+        
+        public static ulong GetPageForItem(ulong itemNumber, ulong pageSize)
+        {
+            return itemNumber / pageSize;
         }
     }
 }

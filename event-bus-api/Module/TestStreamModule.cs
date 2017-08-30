@@ -1,4 +1,6 @@
 ﻿using System;
+using CarrierPidgin.EventBus.Dal;
+using CarrierPidgin.Lib;
 using Nancy;
 
 namespace CarrierPidgin.EventBus.Module
@@ -15,7 +17,7 @@ namespace CarrierPidgin.EventBus.Module
 
                 Console.WriteLine($"teststream: {eventRange.Start} to {eventRange.End}");
 
-                var result = TestStreamRepository.GetTransportMessage(eventRange);
+                TransportMessage result = TestStreamRepository.GetTransportMessage(eventRange);
                 return Response.AsJson(result);
             };
 
@@ -27,7 +29,6 @@ namespace CarrierPidgin.EventBus.Module
                 var result = TestStreamRepository.GetTransportMessage(eventRange);
                 return Response.AsJson(result);
             };
-
         }
     }
 }

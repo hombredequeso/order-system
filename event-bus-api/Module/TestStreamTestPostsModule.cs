@@ -1,4 +1,5 @@
-﻿using CarrierPidgin.Lib;
+﻿using CarrierPidgin.EventBus.Dal;
+using CarrierPidgin.Lib;
 using Nancy;
 using Nancy.ModelBinding;
 

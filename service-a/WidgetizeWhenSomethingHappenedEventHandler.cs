@@ -17,7 +17,8 @@ namespace CarrierPidgin.ServiceA
             _random = new Random();
         }
 
-        public static double FailureProbability { get; } = 0.95;
+        public static double FailureProbability { get; } = 0.8;
+        //public static double FailureProbability { get; } = 0.00;
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
     
         private readonly Random _random;
