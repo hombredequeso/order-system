@@ -1,0 +1,82 @@
+{
+	"variables": [],
+	"info": {
+		"name": "carrier-pidgin: order-api (order domain)",
+		"_postman_id": "59d2aa4c-da50-9929-10ca-509039ccfdd5",
+		"description": "",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "http://localhost:8081/order",
+			"request": {
+				"url": "http://localhost:8081/order",
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"description\": \"MyFirstOrder\"\n}"
+				},
+				"description": "Create a new order"
+			},
+			"response": []
+		},
+		{
+			"name": "http://localhost:8081/order/3e107d1e-5cba-42aa-8227-f78429096091/cancel",
+			"request": {
+				"url": "http://localhost:8081/order/3e107d1e-5cba-42aa-8227-f78429096091/cancel",
+				"method": "POST",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"description": ""
+					}
+				],
+				"body": {},
+				"description": "Cancel order"
+			},
+			"response": []
+		},
+		{
+			"name": "http://localhost:8081/order/3e107d1e-5cba-42aa-8227-f78429096091/activate",
+			"request": {
+				"url": "http://localhost:8081/order/3e107d1e-5cba-42aa-8227-f78429096091/activate",
+				"method": "POST",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"description": ""
+					}
+				],
+				"body": {},
+				"description": "Activate an order"
+			},
+			"response": []
+		},
+		{
+			"name": "http://localhost:8081/order/3e107d1e-5cba-42aa-8227-f78429096091",
+			"request": {
+				"url": "http://localhost:8081/order/3e107d1e-5cba-42aa-8227-f78429096091",
+				"method": "GET",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"description": ""
+					}
+				],
+				"body": {},
+				"description": "Get an order"
+			},
+			"response": []
+		}
+	]
+}

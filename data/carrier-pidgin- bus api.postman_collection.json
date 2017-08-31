@@ -1,0 +1,90 @@
+{
+	"variables": [],
+	"info": {
+		"name": "carrier-pidgin: bus api",
+		"_postman_id": "0b069ff3-c950-1003-7e4f-4330bb268513",
+		"description": "Carrier pidgin project, bus api",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "http://localhost:8080/test",
+			"request": {
+				"url": "http://localhost:8080/test",
+				"method": "GET",
+				"header": [],
+				"body": {},
+				"description": "GET test"
+			},
+			"response": []
+		},
+		{
+			"name": "http://localhost:8080/health",
+			"request": {
+				"url": "http://localhost:8080/health",
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					}
+				],
+				"body": {},
+				"description": "GET health check, returns version number"
+			},
+			"response": []
+		},
+		{
+			"name": "http://localhost:8080/teststream/",
+			"request": {
+				"url": "http://localhost:8080/teststream/",
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					}
+				],
+				"body": {},
+				"description": "GET teststream (interservice stream)"
+			},
+			"response": []
+		},
+		{
+			"name": "http://localhost:8080/teststream/0,9",
+			"request": {
+				"url": "http://localhost:8080/teststream/0,9",
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					}
+				],
+				"body": {},
+				"description": "GET teststream, first transport message"
+			},
+			"response": []
+		},
+		{
+			"name": "http://localhost:8080/eventstream/orderdomain/order/0,9",
+			"request": {
+				"url": "http://localhost:8080/eventstream/orderdomain/order/0,9",
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					}
+				],
+				"body": {},
+				"description": "GET orderdomain/order, first transport message"
+			},
+			"response": []
+		}
+	]
+}

@@ -9,7 +9,7 @@ namespace CarrierPidgin.EventBus.Module
     public class OrderModule: NancyModule
     {
         private const string ConnectionString =
-            "Host=localhost;Username=postgres;Password=mypassword;Database=mydb;Search Path=order";
+            "Host=localhost;Username=postgres;Password=mypassword;Database=carrierpidgin;Search Path=order";
 
         public OrderModule()
         {

@@ -17,6 +17,27 @@ And that language is http.
 
 Something to compile/run a simple dot net application with.
 
+### Postgres Database
+
+Some services use a postgres database.
+The simplest way to set this up is likely to be using docker.
+For example:
+
+
+Start postgres database, exposed on port 5432 on the local/host machine (note: this will not persist between restarts)
+
+```shell
+docker run --name some-postgres -e POSTGRES_PASSWORD=mypassword -p 5432:5432 -d postgres
+```
+
+Then run scripts to setup the database
+
+```shell
+cd data\postgres-init
+docker cp .\setup.sql some-postgres:/home/setup.sql
+docker exec -it some-postgres psql -U postgres -f /home/setup.sql
+```
+
 ### Postman
 
 The file data/carrier-pidgin.postman_collection.json contains a sample collection of sample api requests that can be loaded in to [Postman](https://www.getpostman.com/).
