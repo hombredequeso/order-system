@@ -19,6 +19,8 @@ namespace CarrierPidgin.EventBus.Module
                 ulong endEventNumber = ulong.Parse(parameters.endEventNumber);
                 EventRange eventRange = new EventRange(startEventNumber, endEventNumber, TestStreamRepository.EventCount);
 
+                Console.WriteLine($"/eventstream/orderdomain/order/: {eventRange.Start} to {eventRange.End}");
+
                 using (NpgsqlConnection dbConnection = new NpgsqlConnection(ConnectionString))
                 {
                     TransportMessage m = OrderRepository.GetTransportMessage(dbConnection, eventRange);

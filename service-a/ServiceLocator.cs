@@ -18,14 +18,13 @@ namespace CarrierPidgin.ServiceA
         public Int32 Port { get; }
         public string Path { get; }
     }
+
     public static class ServiceLocator
     {
         public static MessageStreamLocation GetMessageStreamLocation(string streamName)
         {
             if (string.IsNullOrWhiteSpace(streamName))
                 return null;
-            if (streamName != "teststream")
-                throw new Exception("Unknown stream name");
             return new MessageStreamLocation("http", "localhost", 8080, streamName);
         }
     }

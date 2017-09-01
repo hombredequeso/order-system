@@ -48,21 +48,29 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\lib\DomainEvent.cs">
-      <Link>DomainEvent.cs</Link>
-    </Compile>
     <Compile Include="..\lib\Either.cs">
       <Link>Lib\Either.cs</Link>
+    </Compile>
+    <Compile Include="..\lib\OrderEvents.cs">
+      <Link>OrderDomain\OrderEvents.cs</Link>
+    </Compile>
+    <Compile Include="..\lib\TestServiceMessages.cs">
+      <Link>TestDomain\TestServiceMessages.cs</Link>
+    </Compile>
+    <Compile Include="..\lib\TransportLayer.cs">
+      <Link>TransportLayer.cs</Link>
     </Compile>
     <Compile Include="DomainMessageProcessor.cs" />
     <Compile Include="ExceptionProcessor.cs" />
     <Compile Include="MessageTransform.cs" />
+    <Compile Include="MessageTypeToHandlerLookup.cs" />
+    <Compile Include="OrderDomain\AddToStatsWhenOrderPlacedHandler.cs" />
     <Compile Include="Poller.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ServiceLocator.cs" />
     <Compile Include="TransportMessageProcessor.cs" />
-    <Compile Include="WidgetizeWhenSomethingHappenedEventHandler.cs" />
+    <Compile Include="TestDomain\WidgetizeWhenSomethingHappenedEventHandler.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using CarrierPidgin.Lib;
+using CarrierPidgin.OrderService.Messages;
+using CarrierPidgin.TestService.Events;
 using Hdq.Lib;
 using NLog;
 
@@ -10,12 +12,19 @@ namespace CarrierPidgin.ServiceA
     public static class DomainMessageProcessor
     {
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
+        public static readonly IDictionary<string, Type> AllDomainMessageTypeLookup;
 
-        public static List<object> GetHandler(Type messageType)
+        static DomainMessageProcessor()
         {
-            if (messageType == typeof(SomethingHappenedEvent))
-                return new List<object> {new WidgetizeWhenSomethingHappenedEventHandler()};
-            return null;
+            AllDomainMessageTypeLookup = new Dictionary<string, Type>();
+            foreach (var keyValuePair in SomethingHappenedEvent.MessageTypeLookup)
+            {
+                AllDomainMessageTypeLookup.Add(keyValuePair);
+            }
+            foreach (var kvp in OrderEvents.OrderEventType)
+            {
+                AllDomainMessageTypeLookup.Add(kvp.Value, kvp.Key);
+            }
         }
 
         public static IProcessMessageResult ProcessMessage(DomainMessage message)
@@ -23,7 +32,7 @@ namespace CarrierPidgin.ServiceA
             Logger.Trace($"ProcessMessage: {message.Header}");
             var msgTypeStr = message.Header.EventType;
             var msgContent = message.Message;
-            var msgType = TransportMessages.messageTypeLookup[msgTypeStr];
+            var msgType = AllDomainMessageTypeLookup[msgTypeStr];
             int handlerRetryCount = 3;
 
             Either<MessageTransform.DeserializeError, object> msg2 = MessageTransform.Deserialize(msgContent, msgType);
@@ -36,7 +45,7 @@ namespace CarrierPidgin.ServiceA
 
         public static IProcessMessageResult Process(object msg, Type msgType, int retries)
         {
-            var handlers = GetHandler(msgType);
+            var handlers = MessageTypeToHandlerLookup.GetHandler(msgType);
             try
             {
                 handlers.ForEach(h =>

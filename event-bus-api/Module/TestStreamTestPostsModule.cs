@@ -1,5 +1,6 @@
 ﻿using CarrierPidgin.EventBus.Dal;
 using CarrierPidgin.Lib;
+using CarrierPidgin.TestService.Events;
 using Nancy;
 using Nancy.ModelBinding;
 

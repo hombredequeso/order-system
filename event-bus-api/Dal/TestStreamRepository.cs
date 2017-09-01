@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using CarrierPidgin.EventBus.Module;
 using CarrierPidgin.Lib;
+using CarrierPidgin.TestService.Events;
 using Newtonsoft.Json;
 
 namespace CarrierPidgin.EventBus.Dal
@@ -49,7 +50,7 @@ namespace CarrierPidgin.EventBus.Dal
                             {
                                 MessageNumber = (ulong) x,
                                 Timestamp = baseTimestamp.AddSeconds(x),
-                                EventType =  TransportMessages.GetMessageName(evt),
+                                EventType =  SomethingHappenedEvent.DomainMessageType,
                                 AggregateId = null,
                                 VersionNumber = null
                             }
@@ -68,7 +69,7 @@ namespace CarrierPidgin.EventBus.Dal
                             {
                                 MessageNumber = lastEvent.Header.MessageNumber + 1,
                                 Timestamp = DateTimeOffset.UtcNow,
-                                EventType =  TransportMessages.GetMessageName(e),
+                                EventType =  SomethingHappenedEvent.DomainMessageType,
                                 AggregateId = null,
                                 VersionNumber = null
                             }

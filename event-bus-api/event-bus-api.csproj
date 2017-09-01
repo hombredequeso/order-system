@@ -96,11 +96,14 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\lib\DomainEvent.cs">
-      <Link>Module\DomainEvent.cs</Link>
-    </Compile>
     <Compile Include="..\lib\EventStoreItem.cs">
       <Link>Dal\EventStoreItem.cs</Link>
+    </Compile>
+    <Compile Include="..\lib\TestServiceMessages.cs">
+      <Link>TestService\TestServiceMessages.cs</Link>
+    </Compile>
+    <Compile Include="..\lib\TransportLayer.cs">
+      <Link>MessageTransport\TransportLayer.cs</Link>
     </Compile>
     <Compile Include="Dal\OrderRepository.cs" />
     <Compile Include="Module\EventRange.cs" />

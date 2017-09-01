@@ -1,5 +1,4 @@
 ﻿using System;
-using System.CodeDom;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -11,25 +10,71 @@ namespace CarrierPidgin.ServiceA
 {
     public class OrderedMessageStream
     {
-        public OrderedMessageStream(string name, int lastSuccessfullyProcessedMessage, string description)
+        public OrderedMessageStream(
+            string name, 
+            int lastSuccessfullyProcessedMessage, 
+            string description,
+            uint defaultPollingDelayMs,
+            Dictionary<Poller.PollingError, uint> pollingErrorPolicy)
         {
             Name = name;
             LastSuccessfullyProcessedMessage = lastSuccessfullyProcessedMessage;
             Description = description;
+            DefaultDelayMs = defaultPollingDelayMs;
+            PollingErrorPolicy = pollingErrorPolicy;
         }
 
         public string Description { get; set; }
         public string Name { get; set; }
         public int LastSuccessfullyProcessedMessage { get; set; }
 
+        public Dictionary<Poller.PollingError, uint> PollingErrorPolicy { get; set; }
+        public uint DefaultDelayMs { get; set; }
+
         public static int NoMessagesProcessed = -1;
+
+
+
     }
 
     public static class MessageStreamRepository
     {
-        public static OrderedMessageStream Get()
+            public static Dictionary<Poller.PollingError, uint> DefaultPollingErrorPolicy = new Dictionary<Poller.PollingError, uint>()
+            {
+                { Poller.PollingError.UnableToConnect, 5000 },
+                { Poller.PollingError.ErrorDeserializingContent, 10000 },
+                { Poller.PollingError.ErrorMakingHttpRequest, 10000 },
+                { Poller.PollingError.UnknownErrorOnGet, 10000 }
+            };
+            public static uint DefaultDelayMs = 1000;
+
+
+        public static List<OrderedMessageStream> Get()
         {
-            return new OrderedMessageStream("teststream", OrderedMessageStream.NoMessagesProcessed, "TestStream #1");
+            return new List<OrderedMessageStream>()
+            {
+                new OrderedMessageStream(
+                    "teststream", 
+                    OrderedMessageStream.NoMessagesProcessed, 
+                    "TestStream #1",
+                    DefaultDelayMs,
+                    DefaultPollingErrorPolicy),
+                new OrderedMessageStream(
+                    "eventstream/orderdomain/order/0,9", 
+                    OrderedMessageStream.NoMessagesProcessed, 
+                    "orderdomain/order stream #1",
+                    DefaultDelayMs * 5,
+                    DefaultPollingErrorPolicy)
+            };
+
+            // Add test stream a second time:
+
+                // new OrderedMessageStream(
+                //     "teststream/0,9", 
+                //     OrderedMessageStream.NoMessagesProcessed, 
+                //     "TestStream #2",
+                //     DefaultDelayMs * 5,
+                //     DefaultPollingErrorPolicy)
         }
     }
 
@@ -60,34 +105,23 @@ namespace CarrierPidgin.ServiceA
             var cts = new CancellationTokenSource();
             var ct = cts.Token;
 
-            var messageStream = MessageStreamRepository.Get();
-            var streamLocation = ServiceLocator.GetMessageStreamLocation(messageStream.Name);
-            var messageStreamState = new MessageStreamState(
-                streamLocation, 
-                messageStream.LastSuccessfullyProcessedMessage,
-                messageStream.Description);
-            uint defaultDelayMs = 1000;
-            Dictionary<Poller.PollingError, uint> pollingErrorPolicy = new Dictionary<Poller.PollingError, uint>()
+
+            var messageStreams = MessageStreamRepository.Get();
+
+            foreach (var messageStream in messageStreams)
             {
-                { Poller.PollingError.UnableToConnect, 5000 },
-                { Poller.PollingError.ErrorDeserializingContent, 10000 },
-                { Poller.PollingError.ErrorMakingHttpRequest, 10000 },
-                { Poller.PollingError.UnknownErrorOnGet, 10000 }
-            };
+                var streamLocation = ServiceLocator.GetMessageStreamLocation(messageStream.Name);
+                var messageStreamState = new MessageStreamState(
+                    streamLocation, 
+                    messageStream.LastSuccessfullyProcessedMessage,
+                    messageStream.Description);
 
-            MainInfinitePollerAsync(messageStreamState, ct, defaultDelayMs, pollingErrorPolicy);
-
-
-
-            // Example of running another message stream state, on the same message stream.
-            //
-            // var messageStreamState2 = new MessageStreamState(
-            //     streamLocation, 
-            //     messageStream.LastSuccessfullyProcessedMessage,
-            //     "ANOTHER STREAM  #2");
-            // MainInfinitePollerAsync(messageStreamState2, ct, 5000, pollingErrorPolicy);
-
-
+                MainInfinitePollerAsync(
+                    messageStreamState, 
+                    ct, 
+                    messageStream.DefaultDelayMs, 
+                    messageStream.PollingErrorPolicy);
+            }
 
             Console.WriteLine("press enter to stop");
             Console.Read();
