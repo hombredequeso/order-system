@@ -31,7 +31,7 @@ namespace CarrierPidgin.EventBus.Dal
             EventRange range)
         {
             List<EventStoreItem> evts = GetEvents(dbConnection, range);
-            List<DomainEvent> domainMsgs = evts
+            List<DomainMessage> domainMsgs = evts
                 .Select((x,i) => ToDomainEvent(x, range.Start + (ulong)i))
                 .ToList();
             return new TransportMessage()
@@ -44,19 +44,19 @@ namespace CarrierPidgin.EventBus.Dal
             };
         }
 
-        private static DomainEvent ToDomainEvent(EventStoreItem item, ulong messageNumber)
+        private static DomainMessage ToDomainEvent(EventStoreItem item, ulong messageNumber)
         {
-            return new DomainEvent()
+            return new DomainMessage()
             {
-                Header = new EventHeader()
+                Header = new MessageHeader()
                 {
                     AggregateId = item.Id.ToString(),
-                    EventNumber = messageNumber,
+                    MessageNumber = messageNumber,
                     Timestamp = item.Timestamp.ToUniversalTime(),
                     EventType = item.MessageType,
                     VersionNumber = (ulong)item.Version
                 },
-                Event = item.SerializedMessage
+                Message = item.SerializedMessage
             };
         }
     }

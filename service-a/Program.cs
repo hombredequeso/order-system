@@ -16,8 +16,7 @@ namespace CarrierPidgin.ServiceA
             var cts = new CancellationTokenSource();
             var ct = cts.Token;
 
-            string streamName = "teststream";
-            var streamLocation = ServiceLocator.GetMessageStreamLocation(streamName);
+            var streamLocation = ServiceLocator.GetMessageStreamLocation("teststream");
 
             MainInfinitePollerAsync(streamLocation, ct);
             Console.WriteLine("press enter to stop");
@@ -31,13 +30,17 @@ namespace CarrierPidgin.ServiceA
 
             using (HttpClient client = new HttpClient())
             {
-                client.BaseAddress = new UriBuilder(stream.Scheme, stream.Host, stream.Port).Uri;
+                var uriBuilder = new UriBuilder(stream.Scheme, stream.Host, stream.Port);
+                client.BaseAddress = uriBuilder.Uri;
                 client.DefaultRequestHeaders.Accept.Clear();
                 client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
+                uriBuilder.Path = stream.Path;
+                var startUrl = uriBuilder.ToString();
+
                 while (!ct.IsCancellationRequested)
                 {
-                    var pollStatus = new PollState("http://localhost:8080/teststream", 1000);
+                    var pollStatus = new PollState(startUrl, 1000);
                     while (pollStatus.CanPoll())
                         pollStatus = await Execute(pollStatus, client, ct);
                 }

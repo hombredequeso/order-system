@@ -33,15 +33,15 @@ namespace CarrierPidgin.ServiceA
     {
         protected MessageProcessingContext()
         {
-            Unprocessed = new List<DomainEvent>();
-            ProcessedSuccessfully = new List<DomainEvent>();
-            ProcessedUnsuccessfully = new List<DomainEvent>();
+            Unprocessed = new List<DomainMessage>();
+            ProcessedSuccessfully = new List<DomainMessage>();
+            ProcessedUnsuccessfully = new List<DomainMessage>();
         }
 
         public MessageProcessingContext(
-            IEnumerable<DomainEvent> processedSuccessfully, 
-            IEnumerable<DomainEvent> processedUnsuccessfully, 
-            IEnumerable<DomainEvent> unprocessed)
+            IEnumerable<DomainMessage> processedSuccessfully, 
+            IEnumerable<DomainMessage> processedUnsuccessfully, 
+            IEnumerable<DomainMessage> unprocessed)
         {
             Unprocessed = unprocessed.ToList();
             ProcessedSuccessfully = processedSuccessfully.ToList();
@@ -53,7 +53,7 @@ namespace CarrierPidgin.ServiceA
             return new MessageProcessingContext();
         }
 
-        public  MessageProcessingContext AddSuccess(DomainEvent e)
+        public  MessageProcessingContext AddSuccess(DomainMessage e)
         {
             return new MessageProcessingContext(
                 ProcessedSuccessfully.Concat(new[] {e}),
@@ -61,7 +61,7 @@ namespace CarrierPidgin.ServiceA
                 Unprocessed);
         }
 
-        public  MessageProcessingContext AddFailure(DomainEvent e)
+        public  MessageProcessingContext AddFailure(DomainMessage e)
         {
             return new MessageProcessingContext(
                 ProcessedSuccessfully,
@@ -69,7 +69,7 @@ namespace CarrierPidgin.ServiceA
                 Unprocessed);
         }
 
-        public  MessageProcessingContext AddUnprocessed(DomainEvent e)
+        public  MessageProcessingContext AddUnprocessed(DomainMessage e)
         {
             return new MessageProcessingContext(
                 ProcessedSuccessfully,
@@ -77,9 +77,9 @@ namespace CarrierPidgin.ServiceA
                 Unprocessed.Concat(new[] {e}));
         }
 
-        public List<DomainEvent> ProcessedSuccessfully { get; }
-        public List<DomainEvent> ProcessedUnsuccessfully { get; }
-        public List<DomainEvent> Unprocessed { get; }
+        public List<DomainMessage> ProcessedSuccessfully { get; }
+        public List<DomainMessage> ProcessedUnsuccessfully { get; }
+        public List<DomainMessage> Unprocessed { get; }
         
     }
 
@@ -92,24 +92,24 @@ namespace CarrierPidgin.ServiceA
 
         public static PollState ProcessTransportMessage(PollState pollStatus, TransportMessage transportMessage)
         {
-            List<DomainEvent> unprocessedMessages = transportMessage
+            List<DomainMessage> unprocessedMessages = transportMessage
                 .Messages
-                .Where(x => (int) (x.Header.EventNumber) > LastEventNumber)
-                .OrderBy(x => x.Header.EventNumber)
+                .Where(x => (int) (x.Header.MessageNumber) > LastEventNumber)
+                .OrderBy(x => x.Header.MessageNumber)
                 .ToList();
 
             Link prevLink = transportMessage.Header.Links.SingleOrDefault(l => l.Rel.Contains(Link.Previous));
             bool areUnprocessedMessagesInEarlierTransportMessage =
                 unprocessedMessages.Any() &&
                 prevLink != null &&
-                unprocessedMessages.Min(x => (int) x.Header.EventNumber) != LastEventNumber + 1;
+                unprocessedMessages.Min(x => (int) x.Header.MessageNumber) != LastEventNumber + 1;
 
             if (areUnprocessedMessagesInEarlierTransportMessage)
                 return new PollState(prevLink.Href, 0);
 
             var initialState = MessageProcessingContext.Start();
             var finalState = unprocessedMessages.Aggregate(initialState, TransportMessageProcessor.ProcessNext);
-            LastEventNumber = finalState.ProcessedSuccessfully.Select(x => (int) x.Header.EventNumber)
+            LastEventNumber = finalState.ProcessedSuccessfully.Select(x => (int) x.Header.MessageNumber)
                 .Concat(new[] {LastEventNumber})
                 .Max();
 
@@ -128,16 +128,16 @@ namespace CarrierPidgin.ServiceA
 
         private static MessageProcessingContext ProcessNext(
             MessageProcessingContext processingContext, 
-            DomainEvent domainEvent)
+            DomainMessage domainMessage)
         {
             if (processingContext.ProcessedUnsuccessfully.Any())
-                return processingContext.AddUnprocessed(domainEvent);
+                return processingContext.AddUnprocessed(domainMessage);
 
-            var processingResult = DomainMessageProcessor.ProcessMessage(domainEvent);
+            var processingResult = DomainMessageProcessor.ProcessMessage(domainMessage);
 
             return processingResult.GetType() == typeof(DomainMessageProcessor.ProcessMessageSuccess) 
-                ? processingContext.AddSuccess(domainEvent) 
-                : processingContext.AddFailure(domainEvent);
+                ? processingContext.AddSuccess(domainMessage) 
+                : processingContext.AddFailure(domainMessage);
         }
 
         public static PollState ProcessPollError(PollState ps, Poller.PollingError error)

@@ -23,7 +23,7 @@ namespace CarrierPidgin.EventBus.Dal
 
     public static class TestStreamRepository
     {
-        public static List<DomainEvent> Events;
+        public static List<DomainMessage> Events;
         public static int EventsInStream = 27;
         public static string StreamName = "teststream";
 
@@ -42,12 +42,12 @@ namespace CarrierPidgin.EventBus.Dal
                 .Select(x =>
                 {
                     var evt = new SomethingHappenedEvent {Description = $"Event{x}"};
-                    return new DomainEvent
+                    return new DomainMessage
                         {
-                            Event = JsonConvert.SerializeObject(evt),
-                            Header = new EventHeader
+                            Message = JsonConvert.SerializeObject(evt),
+                            Header = new MessageHeader()
                             {
-                                EventNumber = (ulong) x,
+                                MessageNumber = (ulong) x,
                                 Timestamp = baseTimestamp.AddSeconds(x),
                                 EventType =  TransportMessages.GetMessageName(evt),
                                 AggregateId = null,
@@ -58,15 +58,15 @@ namespace CarrierPidgin.EventBus.Dal
                     .ToList();
         }
 
-        public static DomainEvent AddEvent(SomethingHappenedEvent e)
+        public static DomainMessage AddEvent(SomethingHappenedEvent e)
         {
             var lastEvent = Events.Last();
-                    var newEvent = new DomainEvent
+                    var newEvent = new DomainMessage
                         {
-                            Event = JsonConvert.SerializeObject(e),
-                            Header = new EventHeader
+                            Message = JsonConvert.SerializeObject(e),
+                            Header = new MessageHeader()
                             {
-                                EventNumber = lastEvent.Header.EventNumber + 1,
+                                MessageNumber = lastEvent.Header.MessageNumber + 1,
                                 Timestamp = DateTimeOffset.UtcNow,
                                 EventType =  TransportMessages.GetMessageName(e),
                                 AggregateId = null,
@@ -87,12 +87,12 @@ namespace CarrierPidgin.EventBus.Dal
             return new EventRange((ulong)firstEvent, (ulong)lastEvent, EventCount);
         }
 
-        public static List<DomainEvent> Get(EventRange range)
+        public static List<DomainMessage> Get(EventRange range)
         {
             int eventCount = Events.Count;
 
             if ((int)(range.Start + 1) > eventCount)
-                return new List<DomainEvent>();
+                return new List<DomainMessage>();
 
             var count = (int)range.End + 1 > eventCount
                 ? eventCount - (int)range.Start
@@ -105,7 +105,7 @@ namespace CarrierPidgin.EventBus.Dal
 
         public static TransportMessage GetTransportMessage(EventRange range)
         {
-            List<DomainEvent> evts = Get(range);
+            List<DomainMessage> evts = Get(range);
             var links = LinkBuilder.GetLinks(TransportMessageFactory.UriBuilder, StreamName, range, evts.Count);
 
             return new TransportMessage()

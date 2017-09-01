@@ -21,7 +21,6 @@ namespace CarrierPidgin.Lib
         {
             {SomethingHappenedEvent.TransportMessageName, typeof(SomethingHappenedEvent) }
         };
-
     }
 
     public class SomethingHappenedEvent
@@ -31,15 +30,15 @@ namespace CarrierPidgin.Lib
         public static  string TransportMessageName => "V1.SomethingHappenedEvent";
     }
 
-    public class DomainEvent
+    public class DomainMessage
     {
-        public EventHeader Header { get; set; }
-        public string Event { get; set; }
+        public MessageHeader Header { get; set; }
+        public string Message { get; set; }
     }
 
-    public class EventHeader
+    public class MessageHeader
     {
-        public ulong EventNumber { get; set; }
+        public ulong MessageNumber { get; set; }
         public DateTimeOffset Timestamp { get; set; }
         public string EventType { get; set; }
         public string AggregateId { get; set; }
@@ -48,14 +47,14 @@ namespace CarrierPidgin.Lib
         public override string ToString()
         {
             return
-                $"EventHeader: EventNumber={EventNumber}; EventType={EventType}; AggregateId={AggregateId}; VersionNumber={VersionNumber}; Timestamp={Timestamp}";
+                $"EventHeader: MessageNumber={MessageNumber}; EventType={EventType}; AggregateId={AggregateId}; VersionNumber={VersionNumber}; Timestamp={Timestamp}";
         }
     }
 
     public class TransportMessage
     {
         public TransportHeader Header { get; set; }
-        public List<DomainEvent> Messages { get; set; }
+        public List<DomainMessage> Messages { get; set; }
     }
 
     public class Link

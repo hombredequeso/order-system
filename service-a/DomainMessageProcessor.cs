@@ -18,11 +18,11 @@ namespace CarrierPidgin.ServiceA
             return null;
         }
 
-        public static IProcessMessageResult ProcessMessage(DomainEvent message)
+        public static IProcessMessageResult ProcessMessage(DomainMessage message)
         {
             Logger.Trace($"ProcessMessage: {message.Header}");
             var msgTypeStr = message.Header.EventType;
-            var msgContent = message.Event;
+            var msgContent = message.Message;
             var msgType = TransportMessages.messageTypeLookup[msgTypeStr];
             int handlerRetryCount = 3;
 
