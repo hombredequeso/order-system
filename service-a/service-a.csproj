@@ -51,6 +51,9 @@
     <Compile Include="..\lib\Either.cs">
       <Link>Lib\Either.cs</Link>
     </Compile>
+    <Compile Include="..\lib\ExceptionProcessor.cs">
+      <Link>Lib\ExceptionProcessor.cs</Link>
+    </Compile>
     <Compile Include="..\lib\OrderEvents.cs">
       <Link>OrderDomain\OrderEvents.cs</Link>
     </Compile>
@@ -61,11 +64,15 @@
       <Link>TransportLayer.cs</Link>
     </Compile>
     <Compile Include="DomainMessageProcessor.cs" />
-    <Compile Include="ExceptionProcessor.cs" />
+    <Compile Include="MessageProcessingContext.cs" />
+    <Compile Include="MessageStreamRepository.cs" />
+    <Compile Include="MessageStreamState.cs" />
     <Compile Include="MessageTransform.cs" />
     <Compile Include="MessageTypeToHandlerLookup.cs" />
     <Compile Include="OrderDomain\AddToStatsWhenOrderPlacedHandler.cs" />
+    <Compile Include="OrderedMessageStream.cs" />
     <Compile Include="Poller.cs" />
+    <Compile Include="PollState.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ServiceLocator.cs" />

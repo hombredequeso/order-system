@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace CarrierPidgin.ServiceA
+namespace Hdq.Lib
 {
     public static class ExceptionProcessor
     {

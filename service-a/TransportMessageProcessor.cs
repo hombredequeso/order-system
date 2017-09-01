@@ -1,4 +1,3 @@
-using System.CodeDom;
 using System.Collections.Generic;
 using System.Linq;
 using CarrierPidgin.Lib;
@@ -6,137 +5,6 @@ using NLog;
 
 namespace CarrierPidgin.ServiceA
 {
-
-    public class PollState
-    {
-        public PollState(
-            string nextUrl,
-            uint delayMs,
-            int lastMessageSuccessfullyProcessed,
-            string messageStreamDescription,
-            Dictionary<Poller.PollingError, uint> pollingErrorDelayPolicy,
-            uint defaultDelayMs)
-        {
-            NextUrl = nextUrl;
-            DelayMs = delayMs;
-            DefaultDelayMs = defaultDelayMs;
-            LastMessageSuccessfullyProcessed = lastMessageSuccessfullyProcessed;
-            MessageStreamName = messageStreamDescription;
-            PollingErrorDelayPolicy = pollingErrorDelayPolicy;
-        }
-
-
-        public string NextUrl { get; }
-        public uint DelayMs { get; }
-        public int LastMessageSuccessfullyProcessed { get; }
-        public  string MessageStreamName { get; }
-
-        public uint DefaultDelayMs { get; }
-        public static uint NoDelay = 0;
-        public Dictionary<Poller.PollingError, uint> PollingErrorDelayPolicy { get; }
-
-        public bool CanPoll()
-        {
-            return !string.IsNullOrEmpty(NextUrl);
-        }
-
-        public bool ShouldDelay()
-        {
-            return DelayMs > 0;
-        }
-
-        public PollState WithDelayFor(Poller.PollingError error)
-        {
-            return new PollState(
-                this.NextUrl, 
-                this.PollingErrorDelayPolicy[error], 
-                this.LastMessageSuccessfullyProcessed,
-                this.MessageStreamName,
-                this.PollingErrorDelayPolicy,
-                this.DefaultDelayMs);
-        }
-
-        public PollState WithDelay(uint newDelay)
-        {
-            return new PollState(
-                this.NextUrl, 
-                newDelay, 
-                this.LastMessageSuccessfullyProcessed,
-                this.MessageStreamName,
-                this.PollingErrorDelayPolicy,
-                this.DefaultDelayMs);
-
-        }
-        public PollState With(
-            string nextUrl = null,
-            uint? delayMs = null,
-            int? lastMessage = null)
-        {
-            return new PollState(
-                nextUrl ?? this.NextUrl,
-                delayMs ?? this.DelayMs,
-                lastMessage ?? this.LastMessageSuccessfullyProcessed,
-                this.MessageStreamName,
-                this.PollingErrorDelayPolicy,
-                this.DefaultDelayMs);
-        }
-    }
-
-
-    public class MessageProcessingContext
-    {
-        protected MessageProcessingContext()
-        {
-            Unprocessed = new List<DomainMessage>();
-            ProcessedSuccessfully = new List<DomainMessage>();
-            ProcessedUnsuccessfully = new List<DomainMessage>();
-        }
-
-        public MessageProcessingContext(
-            IEnumerable<DomainMessage> processedSuccessfully, 
-            IEnumerable<DomainMessage> processedUnsuccessfully, 
-            IEnumerable<DomainMessage> unprocessed)
-        {
-            Unprocessed = unprocessed.ToList();
-            ProcessedSuccessfully = processedSuccessfully.ToList();
-            ProcessedUnsuccessfully = processedUnsuccessfully.ToList();
-        }
-
-        public static MessageProcessingContext Start()
-        {
-            return new MessageProcessingContext();
-        }
-
-        public  MessageProcessingContext AddSuccess(DomainMessage e)
-        {
-            return new MessageProcessingContext(
-                ProcessedSuccessfully.Concat(new[] {e}),
-                ProcessedUnsuccessfully,
-                Unprocessed);
-        }
-
-        public  MessageProcessingContext AddFailure(DomainMessage e)
-        {
-            return new MessageProcessingContext(
-                ProcessedSuccessfully,
-                ProcessedUnsuccessfully.Concat(new[] {e}),
-                Unprocessed);
-        }
-
-        public  MessageProcessingContext AddUnprocessed(DomainMessage e)
-        {
-            return new MessageProcessingContext(
-                ProcessedSuccessfully,
-                ProcessedUnsuccessfully,
-                Unprocessed.Concat(new[] {e}));
-        }
-
-        public List<DomainMessage> ProcessedSuccessfully { get; }
-        public List<DomainMessage> ProcessedUnsuccessfully { get; }
-        public List<DomainMessage> Unprocessed { get; }
-        
-    }
-
     // Responsible for processing a TransportMessage.
     // To change the policy of "must processes all messages in order", this would be the function to alter.
     public static class TransportMessageProcessor
@@ -225,7 +93,7 @@ namespace CarrierPidgin.ServiceA
                 }
                 case Poller.PollingError.ErrorDeserializingContent:
                 {
-                    Logger.Warn($"Error GET {ps.NextUrl}: This is probably never going to work");
+                    Logger.Fatal($"Error GET {ps.NextUrl}: This is probably never going to work");
                     break;
                 }
             }
