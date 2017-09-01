@@ -24,6 +24,8 @@ namespace CarrierPidgin.ServiceA
         {
             if (string.IsNullOrWhiteSpace(streamName))
                 return null;
+            if (streamName != "teststream")
+                throw new Exception("Unknown stream name");
             return new MessageStreamLocation("http", "localhost", 8080, streamName);
         }
     }

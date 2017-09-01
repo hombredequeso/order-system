@@ -12,17 +12,11 @@ namespace CarrierPidgin.ServiceA
 
     public class WidgetizeWhenSomethingHappenedEventHandler
     {
-        public WidgetizeWhenSomethingHappenedEventHandler()
-        {
-            _random = new Random();
-        }
-
-        public static double FailureProbability { get; } = 0.8;
-        //public static double FailureProbability { get; } = 0.00;
+        private static readonly Random _random = new Random();
+        public static double FailureProbability { get; } = 0.0;
+        // public static double FailureProbability { get; } = 0.8;
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
     
-        private readonly Random _random;
-
         public void Handle(SomethingHappenedEvent msg)
         {
             Logger.Trace($"Widgetizing - Something happened: {msg.Description}");

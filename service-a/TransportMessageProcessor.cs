@@ -1,4 +1,4 @@
-using System;
+using System.CodeDom;
 using System.Collections.Generic;
 using System.Linq;
 using CarrierPidgin.Lib;
@@ -6,16 +6,34 @@ using NLog;
 
 namespace CarrierPidgin.ServiceA
 {
+
     public class PollState
     {
-        public PollState(string nextUrl, int delay)
+        public PollState(
+            string nextUrl,
+            uint delayMs,
+            int lastMessageSuccessfullyProcessed,
+            string messageStreamDescription,
+            Dictionary<Poller.PollingError, uint> pollingErrorDelayPolicy,
+            uint defaultDelayMs)
         {
             NextUrl = nextUrl;
-            Delay = delay;
+            DelayMs = delayMs;
+            DefaultDelayMs = defaultDelayMs;
+            LastMessageSuccessfullyProcessed = lastMessageSuccessfullyProcessed;
+            MessageStreamName = messageStreamDescription;
+            PollingErrorDelayPolicy = pollingErrorDelayPolicy;
         }
 
+
         public string NextUrl { get; }
-        public int Delay { get; }
+        public uint DelayMs { get; }
+        public int LastMessageSuccessfullyProcessed { get; }
+        public  string MessageStreamName { get; }
+
+        public uint DefaultDelayMs { get; }
+        public static uint NoDelay = 0;
+        public Dictionary<Poller.PollingError, uint> PollingErrorDelayPolicy { get; }
 
         public bool CanPoll()
         {
@@ -24,7 +42,43 @@ namespace CarrierPidgin.ServiceA
 
         public bool ShouldDelay()
         {
-            return Delay >= 0;
+            return DelayMs > 0;
+        }
+
+        public PollState WithDelayFor(Poller.PollingError error)
+        {
+            return new PollState(
+                this.NextUrl, 
+                this.PollingErrorDelayPolicy[error], 
+                this.LastMessageSuccessfullyProcessed,
+                this.MessageStreamName,
+                this.PollingErrorDelayPolicy,
+                this.DefaultDelayMs);
+        }
+
+        public PollState WithDelay(uint newDelay)
+        {
+            return new PollState(
+                this.NextUrl, 
+                newDelay, 
+                this.LastMessageSuccessfullyProcessed,
+                this.MessageStreamName,
+                this.PollingErrorDelayPolicy,
+                this.DefaultDelayMs);
+
+        }
+        public PollState With(
+            string nextUrl = null,
+            uint? delayMs = null,
+            int? lastMessage = null)
+        {
+            return new PollState(
+                nextUrl ?? this.NextUrl,
+                delayMs ?? this.DelayMs,
+                lastMessage ?? this.LastMessageSuccessfullyProcessed,
+                this.MessageStreamName,
+                this.PollingErrorDelayPolicy,
+                this.DefaultDelayMs);
         }
     }
 
@@ -88,13 +142,14 @@ namespace CarrierPidgin.ServiceA
     public static class TransportMessageProcessor
     {
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
-        public static int LastEventNumber = -1;
 
         public static PollState ProcessTransportMessage(PollState pollStatus, TransportMessage transportMessage)
         {
+            Logger.Trace("---------------------------------------------------------");
+            Logger.Trace($"PROCESSING TRANSPORT MESSAGE FOR: {pollStatus.MessageStreamName}");
             List<DomainMessage> unprocessedMessages = transportMessage
                 .Messages
-                .Where(x => (int) (x.Header.MessageNumber) > LastEventNumber)
+                .Where(x => (int) (x.Header.MessageNumber) > pollStatus.LastMessageSuccessfullyProcessed)
                 .OrderBy(x => x.Header.MessageNumber)
                 .ToList();
 
@@ -102,16 +157,13 @@ namespace CarrierPidgin.ServiceA
             bool areUnprocessedMessagesInEarlierTransportMessage =
                 unprocessedMessages.Any() &&
                 prevLink != null &&
-                unprocessedMessages.Min(x => (int) x.Header.MessageNumber) != LastEventNumber + 1;
+                unprocessedMessages.Min(x => (int) x.Header.MessageNumber) != pollStatus.LastMessageSuccessfullyProcessed + 1;
 
             if (areUnprocessedMessagesInEarlierTransportMessage)
-                return new PollState(prevLink.Href, 0);
+                return pollStatus.With(prevLink.Href, 0, pollStatus.LastMessageSuccessfullyProcessed);
 
             var initialState = MessageProcessingContext.Start();
             var finalState = unprocessedMessages.Aggregate(initialState, TransportMessageProcessor.ProcessNext);
-            LastEventNumber = finalState.ProcessedSuccessfully.Select(x => (int) x.Header.MessageNumber)
-                .Concat(new[] {LastEventNumber})
-                .Max();
 
 
             var nextLink = transportMessage.Header.Links.SingleOrDefault(l => l.Rel.Contains(Link.Next));
@@ -121,9 +173,21 @@ namespace CarrierPidgin.ServiceA
                 nextLink != null &&
                 unprocessedMessages.Count == finalState.ProcessedSuccessfully.Count;
 
+            var newLastMessageNumberProcessed = finalState
+                    .ProcessedSuccessfully
+                    .Select(x => (int)x.Header.MessageNumber)
+                    .Concat(new[] { pollStatus.LastMessageSuccessfullyProcessed })
+                    .Max();
+
             return finishedWithThisTransportMessage ?
-                new PollState(nextLink.Href, 0) :
-                new PollState(selfLink.Href, 1000);
+                pollStatus.With(
+                    nextLink.Href, 
+                    PollState.NoDelay, 
+                    newLastMessageNumberProcessed) :
+                pollStatus.With(
+                    selfLink.Href, 
+                    pollStatus.DefaultDelayMs, 
+                    newLastMessageNumberProcessed);
         }
 
         private static MessageProcessingContext ProcessNext(
@@ -140,32 +204,30 @@ namespace CarrierPidgin.ServiceA
                 : processingContext.AddFailure(domainMessage);
         }
 
-        public static PollState ProcessPollError(PollState ps, Poller.PollingError error)
+        public static void LogError(PollState ps, Poller.PollingError error)
         {
             switch (error)
             {
                 case Poller.PollingError.UnableToConnect:
                 {
                     Logger.Warn($"Error GET {ps.NextUrl}: Unable to connect to api");
-                    return new PollState(ps.NextUrl, 5000);
+                    break;
                 }
                 case Poller.PollingError.UnknownErrorOnGet:
                 {
                     Logger.Error($"Error GET {ps.NextUrl}: Unknown error on get");
-                    return new PollState(ps.NextUrl, 10000);
+                    break;
                 }
                 case Poller.PollingError.ErrorMakingHttpRequest:
                 {
                     Logger.Error($"Error GET {ps.NextUrl}: making request");
-                    return new PollState(ps.NextUrl, 10000);
+                    break;
                 }
                 case Poller.PollingError.ErrorDeserializingContent:
                 {
                     Logger.Warn($"Error GET {ps.NextUrl}: This is probably never going to work");
-                    return new PollState(ps.NextUrl, 10000);
+                    break;
                 }
-                default:
-                    return ps;
             }
         }
     }
