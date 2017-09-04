@@ -20,7 +20,8 @@ CREATE TABLE "order"."OrderEvent"
     "MessageType" character varying(100) COLLATE pg_catalog."default" NOT NULL,
     "SerializedMessage" json NOT NULL,
     "Timestamp" timestamp with time zone NOT NULL,
-    CONSTRAINT "OrderEvent_pkey" PRIMARY KEY ("dbId")
+    CONSTRAINT "OrderEvent_pkey" PRIMARY KEY ("dbId"),
+    CONSTRAINT "UniqueIdVersion" UNIQUE ("Id", "Version")
 )
 WITH (
     OIDS = FALSE
