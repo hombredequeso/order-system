@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using CarrierPidgin.OrderService.Messages;
-using CarrierPidgin.ServiceA.OrderDomain;
+using CarrierPidgin.ServiceA.Statistics;
 using CarrierPidgin.ServiceA.TestDomain;
 using CarrierPidgin.TestService.Events;
 

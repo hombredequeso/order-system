@@ -42,7 +42,6 @@ namespace CarrierPidgin.ServiceA
                 msg3 => Process(msg3, msgType, handlerRetryCount));
         }
 
-
         public static IProcessMessageResult Process(object msg, Type msgType, int retries)
         {
             var handlers = MessageTypeToHandlerLookup.GetHandler(msgType);

@@ -44,19 +44,25 @@ namespace CarrierPidgin.EventBus.Dal
                 {
                     var evt = new SomethingHappenedEvent {Description = $"Event{x}"};
                     return new DomainMessage
-                        {
-                            Message = JsonConvert.SerializeObject(evt),
-                            Header = new MessageHeader()
+                    {
+                        Message = JsonConvert.SerializeObject(
+                            evt,
+                            Formatting.None,
+                            new JsonSerializerSettings
                             {
-                                MessageNumber = (ulong) x,
-                                Timestamp = baseTimestamp.AddSeconds(x),
-                                EventType =  SomethingHappenedEvent.DomainMessageType,
-                                AggregateId = null,
-                                VersionNumber = null
-                            }
-                        };
+                                NullValueHandling = NullValueHandling.Ignore
+                            }),
+                        Header = new MessageHeader
+                        {
+                            MessageNumber = (ulong) x,
+                            Timestamp = baseTimestamp.AddSeconds(x),
+                            EventType = SomethingHappenedEvent.DomainMessageType,
+                            AggregateId = null,
+                            VersionNumber = null
+                        }
+                    };
                 })
-                    .ToList();
+                .ToList();
         }
 
         public static DomainMessage AddEvent(SomethingHappenedEvent e)
@@ -64,7 +70,13 @@ namespace CarrierPidgin.EventBus.Dal
             var lastEvent = Events.Last();
                     var newEvent = new DomainMessage
                         {
-                            Message = JsonConvert.SerializeObject(e),
+                            Message = JsonConvert.SerializeObject(
+                                e,
+                                Formatting.None,
+                                new JsonSerializerSettings
+                                {
+                                    NullValueHandling = NullValueHandling.Ignore
+                                }),
                             Header = new MessageHeader()
                             {
                                 MessageNumber = lastEvent.Header.MessageNumber + 1,

@@ -69,7 +69,7 @@
     <Compile Include="MessageStreamState.cs" />
     <Compile Include="MessageTransform.cs" />
     <Compile Include="MessageTypeToHandlerLookup.cs" />
-    <Compile Include="OrderDomain\AddToStatsWhenOrderPlacedHandler.cs" />
+    <Compile Include="Statistics\AddToStatsWhenOrderPlacedHandler.cs" />
     <Compile Include="OrderedMessageStream.cs" />
     <Compile Include="Poller.cs" />
     <Compile Include="PollState.cs" />

@@ -9,11 +9,31 @@ namespace CarrierPidgin.OrderService.Messages
         int Version { get; set; }
     }
 
+
+    public class OrderLine
+    {
+        public OrderLine(Guid itemId, int quantity, decimal pricePerItem)
+        {
+            if (quantity == 0)
+                throw new ArgumentException("Cannot be 0", nameof(quantity));
+            if (itemId == Guid.Empty)
+                throw new ArgumentException("Cannot be empty", nameof(itemId));
+            ItemId = itemId;
+            Quantity = quantity;
+            PricePerItem = pricePerItem;
+        }
+
+        public Guid ItemId { get; }
+        public int Quantity { get; }
+        public decimal PricePerItem { get; }
+    }
+
     public class OrderPlacedEvent: IOrderEvent
     {
         public Guid OrderNumber { get; set; }
         public int Version { get; set; }
         public string Description { get; set; }
+        public List<OrderLine> Lines { get; set; }
     }
 
     public class OrderCancelledEvent: IOrderEvent

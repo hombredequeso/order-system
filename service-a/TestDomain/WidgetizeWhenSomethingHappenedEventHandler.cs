@@ -1,5 +1,4 @@
 ﻿using System;
-using CarrierPidgin.Lib;
 using CarrierPidgin.TestService.Events;
 using NLog;
 

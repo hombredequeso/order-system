@@ -1,11 +1,27 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using CarrierPidgin.OrderService.Messages;
 
 namespace CarrierPidgin.OrderService.Domain
 {
+    public class OrderLine
+    {
+        public OrderLine(Guid itemId, int quantity, decimal pricePerItem)
+        {
+            if (quantity == 0)
+                throw new ArgumentException("Cannot be 0", nameof(quantity));
+            if (itemId == Guid.Empty)
+                throw new ArgumentException("Cannot be empty", nameof(itemId));
+            ItemId = itemId;
+            Quantity = quantity;
+            PricePerItem = pricePerItem;
+        }
+
+        public Guid ItemId { get; }
+        public int Quantity { get; }
+        public decimal PricePerItem { get; }
+    }
 
     public class Order
     {
@@ -18,18 +34,28 @@ namespace CarrierPidgin.OrderService.Domain
         public Guid OrderNumber { get; private set; }
         public string Description { get; private  set; }
         public State Status { get; private set; }
+        public List<OrderLine> Lines { get; private set; }
 
         // Public operations
-        public Order(Guid orderNumber, string description)
+        public Order(
+            Guid orderNumber, 
+            string description,
+            List<OrderLine> lines)
         {
             var e = new OrderPlacedEvent()
             {
                 OrderNumber = orderNumber,
                 Description = description,
-                Version = 0
+                Version = 0,
+                Lines = lines.Select(ToEventLine).ToList()
             };
 
             this.Apply(e, true);
+        }
+
+        private Messages.OrderLine ToEventLine(OrderLine l)
+        {
+            return new Messages.OrderLine(l.ItemId, l.Quantity, l.PricePerItem);
         }
 
         public void Cancel()
@@ -95,6 +121,12 @@ namespace CarrierPidgin.OrderService.Domain
             this.Description = e.Description;
             this.OrderNumber = e.OrderNumber;
             this.Status = State.Active;
+            this.Lines = e.Lines.Select(ToDomainLine).ToList();
+        }
+
+        private OrderLine ToDomainLine(Messages.OrderLine l)
+        {
+            return new OrderLine(l.ItemId, l.Quantity, l.PricePerItem);
         }
 
         private static readonly int NoEventsEventNumber = -1;
