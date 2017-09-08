@@ -25,7 +25,7 @@ namespace CarrierPidgin.EventBus.Dal
     public static class TestStreamRepository
     {
         public static List<DomainMessage> Events;
-        public static int EventsInStream = 27;
+        public static int InitialEventsInStream = 27;
         public static string StreamName = "teststream";
 
         public const ulong EventCount = 10;
@@ -39,7 +39,7 @@ namespace CarrierPidgin.EventBus.Dal
 
             DateTimeOffset baseTimestamp = DateTimeOffset.UtcNow;
 
-            Events = Enumerable.Range(0, EventsInStream)
+            Events = Enumerable.Range(0, InitialEventsInStream)
                 .Select(x =>
                 {
                     var evt = new SomethingHappenedEvent {Description = $"Event{x}"};
@@ -94,7 +94,7 @@ namespace CarrierPidgin.EventBus.Dal
         {
             // zero based page.
             int ps = (int) EventCount;
-            var page = EventsInStream / ps;
+            var page = Events.Count / ps;
             var firstEvent = page * ps;
             var lastEvent = ((page + 1) * ps) - 1;
             return new EventRange((ulong)firstEvent, (ulong)lastEvent, EventCount);
