@@ -13,8 +13,8 @@ namespace CarrierPidgin.ServiceA
 
         public static PollState ProcessTransportMessage(PollState pollStatus, TransportMessage transportMessage)
         {
-            Logger.Trace("---------------------------------------------------------");
-            Logger.Trace($"PROCESSING TRANSPORT MESSAGE FOR: {pollStatus.MessageStreamName}");
+            // Logger.Trace("---------------------------------------------------------");
+            // Logger.Trace($"PROCESSING TRANSPORT MESSAGE FOR: {pollStatus.MessageStreamName}");
             List<DomainMessage> unprocessedMessages = transportMessage
                 .Messages
                 .Where(x => (int) (x.Header.MessageNumber) > pollStatus.LastMessageSuccessfullyProcessed)

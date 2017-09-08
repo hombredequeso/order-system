@@ -15,7 +15,7 @@ namespace CarrierPidgin.ServiceA
                 return new List<object> {new WidgetizeWhenSomethingHappenedEventHandler()};
             if (messageType == typeof(OrderPlacedEvent))
                 return new List<object> {new AddToStatsWhenOrderPlacedHandler()};
-            return null;
+            return new List<object>();
         }
     }
 }

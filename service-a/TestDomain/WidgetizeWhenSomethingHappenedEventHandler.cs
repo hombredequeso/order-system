@@ -13,8 +13,8 @@ namespace CarrierPidgin.ServiceA.TestDomain
     public class WidgetizeWhenSomethingHappenedEventHandler
     {
         private static readonly Random _random = new Random();
-        // public static double FailureProbability { get; } = 0.0;
-        public static double FailureProbability { get; } = 0.8;
+        public static double FailureProbability { get; } = 0.0;
+        //public static double FailureProbability { get; } = 0.8;
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
     
         public void Handle(SomethingHappenedEvent msg)
