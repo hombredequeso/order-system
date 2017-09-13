@@ -13,7 +13,7 @@ namespace CarrierPidgin.ServiceA
             if (messageType == typeof(SomethingHappenedEvent))
                 return e => new WidgetizeWhenSomethingHappenedEventHandler().Handle((SomethingHappenedEvent) e);
             if (messageType == typeof(OrderPlacedEvent))
-                return m => HandleConstruction.GetHandlerWithDeDup2()((OrderPlacedEvent) m);
+                return m => HandleConstruction.GetOrderPlacedHandler()((OrderPlacedEvent) m);
             return e => { };
         }
     }
