@@ -77,6 +77,7 @@ namespace CarrierPidgin.OrderService.Module
             Post["/order"] = parameters =>
             {
                 var postContent = this.Bind<PostOrderBody>();
+
                 var orderNumber = Guid.NewGuid();
                 using (var uow = new UnitOfWork(ConnectionString))
                 {

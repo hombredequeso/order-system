@@ -3,10 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using CarrierPidgin.OrderService.Messages;
 using NLog;
+using Npgsql;
 
 namespace CarrierPidgin.ServiceA.Statistics
 {
-    public static class OrderStatistics
+    public static class OrderStatisticsModule
     {
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
 
@@ -48,11 +49,11 @@ namespace CarrierPidgin.ServiceA.Statistics
     {
         public void Handle(OrderPlacedEvent orderPlacedEvent)
         {
-            OrderStatistics.OrderReceived();
-            OrderStatistics.AddItemCount(orderPlacedEvent
+            OrderStatisticsModule.OrderReceived();
+            OrderStatisticsModule.AddItemCount(orderPlacedEvent
                 .Lines
                 .ToDictionary(x => x.ItemId, x => x.Quantity));
-            OrderStatistics.LogState();
+            OrderStatisticsModule.LogState();
         }
     }
 }

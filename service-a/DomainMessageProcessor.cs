@@ -39,19 +39,15 @@ namespace CarrierPidgin.ServiceA
 
             return msg2.Match(
                 e => new DeserializationError(e.Exception),
-                msg3 => Process(msg3, msgType, handlerRetryCount));
+                msg3 => ProcessMsg(msg3, msgType, handlerRetryCount));
         }
 
-        public static IProcessMessageResult Process(object msg, Type msgType, int retries)
+        public static IProcessMessageResult ProcessMsg(object msg, Type msgType, int retries)
         {
-            var handlers = MessageTypeToHandlerLookup.GetHandler(msgType);
+            var msgHandler = MessageHandlerLookup.GetMessageHandler(msgType);
             try
             {
-                handlers.ForEach(h =>
-                {
-                    var methodInfo = h.GetType().GetMethods().First(m => m.Name == "Handle");
-                    methodInfo.Invoke(h, new[] {msg});
-                });
+                msgHandler(msg);
                 return new ProcessMessageSuccess();
             }
             catch (Exception e)
@@ -62,7 +58,7 @@ namespace CarrierPidgin.ServiceA
                     return new HandlerError(e);
                 }
                 Logger.Trace($"Handler failed: {retries} remaining");
-                return Process(msg, msgType, retries - 1);
+                return ProcessMsg(msg, msgType, retries - 1);
             }
         }
 

@@ -1,3 +1,5 @@
+-- Database
+
 CREATE DATABASE carrierpidgin
     WITH 
     OWNER = postgres
@@ -9,9 +11,11 @@ CREATE DATABASE carrierpidgin
 
 \connect carrierpidgin
 
+ -- Order Schema
 CREATE SCHEMA "order"
     AUTHORIZATION postgres;
 
+-- Order.OrderEvent
 CREATE TABLE "order"."OrderEvent"
 (
     "dbId" SERIAL NOT NULL,
@@ -29,5 +33,29 @@ WITH (
 TABLESPACE pg_default;
 
 ALTER TABLE "order"."OrderEvent"
+    OWNER to postgres;
+
+
+-- Statistics Schema
+
+CREATE SCHEMA "statistics"
+    AUTHORIZATION postgres;
+
+-- statistics.OrderStatistics table
+
+CREATE TABLE "statistics"."OrderStatistics"
+(
+    "Id" uuid NOT NULL,
+    "TotalOrders" integer NOT NULL,
+    "Version" integer NOT NULL,
+    "UpdatedTimestamp" timestamp with time zone NOT NULL,
+    CONSTRAINT "OrderStatistics_pkey" PRIMARY KEY ("Id")
+)
+WITH (
+    OIDS = FALSE
+)
+TABLESPACE pg_default;
+
+ALTER TABLE "statistics"."OrderStatistics"
     OWNER to postgres;
 
