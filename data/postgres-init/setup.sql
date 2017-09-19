@@ -1,4 +1,5 @@
 -- Database
+DROP DATABASE IF EXISTS carrierpidgin;
 
 CREATE DATABASE carrierpidgin
     WITH 

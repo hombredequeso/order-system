@@ -1,8 +1,18 @@
-# Prototype: http message bus example
+# Eductional project for multiple domains over an http bus
 
-A project for demonstrating a very simple message bus over http transport. As such, this is not a framework/library to be used in production. It is primarily for example/educational purposes.
+This is a project intended for eductional purposes. It is directed towards anyone wanting to see an example of a messaging framework with a contrived domain example, primarily in C#.
 
-The design is loosely based on Vaughn Vernon's example in _Implementing Domain-Driven Design_, chapter 8.
+As such, it has two main parts:
+* Implementation of an http based bus for interdomain communication.
+* Simple (contrived!) domain examples (I'm the product owner, so I can make it do what-ever I want, and that's exactly what it does)
+
+The http bus design is based on Vaughn Vernon's example in _Implementing Domain-Driven Design_, chapter 8.
+
+### Setting the Scene
+
+Aside from a few low-level libraries concerned with such things as serialization, database access, and unit testing, there is very little in the way of libraries. There is no Ioc container. There is nothing above the low-level database access, so sql commands must be written. This is not because higher-level libraries are evil -- personally I suggest you use them -- but to help most clearly illustrate as much as possible what is going on.
+
+Is this object-oriented, or functional? Ok, I've got a split brain. I'd rather be writing functional, but I started with C# because that is what the eductional situation initially demanded. I imagine it is pretty clear to anyone familiar with functional programming that my C# is pining to be truly functional. (and whether you agree or not, one of the lower-level libraries I use is a C# option library. Surely 'option' isn't a higher level construct is it?).
 
 ### Why Pidgin?
 No it's not misspelt. Originally I was going to call it carrier-pigeon, because it, you know, carries messages around.
@@ -20,23 +30,22 @@ Something to compile/run a simple dot net application with.
 ### Postgres Database
 
 Some services use a postgres database.
-The simplest way to set this up is likely to be using docker.
-For example:
 
-
-Start postgres database, exposed on port 5432 on the local/host machine (note: this will not persist between restarts)
+The PostgreSQL server can be set up using the docker-compose.yml file provided:
 
 ```shell
-docker run --name some-postgres -e POSTGRES_PASSWORD=mypassword -p 5432:5432 -d postgres
+docker-compose up
 ```
 
-Then run scripts to setup the database
+To create the database itself:
 
 ```shell
-cd data\postgres-init
-docker cp .\setup.sql some-postgres:/home/setup.sql
-docker exec -it some-postgres psql -U postgres -f /home/setup.sql
+docker exec -it carrier-pidgin-postgres psql -U postgres -f /home/data/postgres-init/setup.sql
 ```
+
+The database will only be created, or destroyed and recreated from scratch, when the docker exec command is run.
+This means it is possible to restart the database and keep it in the state it was last time it was used.
+This is suitable for development purposes only.
 
 ### Postman
 
@@ -44,7 +53,7 @@ The file data/carrier-pidgin.postman_collection.json contains a sample collectio
 
 ## Getting Started with Postgres on Windows
 There are a variety of ways to get a dev postgres setup going. The following is what I use, with basic installation and getting started instructions.
-* Run the postgres database server in docker, as above.
+* Run the postgres database server using docker/docker-compose, as above.
 * For a GUI database administration client, download and install [pgadmin](https://www.pgadmin.org/download/pgadmin-4-windows/). Assuming you have used any other UI based database admin clients, this should be pretty familiar.
 * In the WSL (Windows subsystem for linux) install psql, a terminal based PostgreSQL client, as follows:
 

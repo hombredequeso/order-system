@@ -1,0 +1,14 @@
+version: "2"
+
+# docker run --name some-postgres -e POSTGRES_PASSWORD=mypassword -p 5432:5432 -d postgres
+services:
+  postgres:
+    container_name: carrier-pidgin-postgres
+    image: postgres
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_PASSWORD=mypassword
+    volumes:
+      - ./data:/home/data
+
