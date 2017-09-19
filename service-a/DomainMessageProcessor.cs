@@ -27,7 +27,9 @@ namespace CarrierPidgin.ServiceA
             }
         }
 
-        public static IProcessMessageResult ProcessMessage(DomainMessage message)
+        public static IProcessMessageResult ProcessMessage(
+            DomainMessage message, 
+            string queueuName)
         {
             Logger.Trace($"ProcessMessage: {message.Header}");
             var msgTypeStr = message.Header.EventType;
@@ -35,30 +37,88 @@ namespace CarrierPidgin.ServiceA
             var msgType = AllDomainMessageTypeLookup[msgTypeStr];
             int handlerRetryCount = 3;
 
+            var context = new DomainMessageProcessingContext(
+                 new Retries(handlerRetryCount),
+                 message.Header,
+                 queueuName
+            );
+
             Either<MessageTransform.DeserializeError, object> msg2 = MessageTransform.Deserialize(msgContent, msgType);
 
             return msg2.Match(
                 e => new DeserializationError(e.Exception),
-                msg3 => ProcessMsg(msg3, msgType, handlerRetryCount));
+                msg3 => ProcessMsg(msg3, msgType, context));
         }
 
-        public static IProcessMessageResult ProcessMsg(object msg, Type msgType, int retries)
+        public class Retries
+        {
+            public Retries(int maxRetries)
+                :this(maxRetries, 1)
+            {
+            }
+
+            private Retries(int maxRetries, int currentTry)
+            {
+                MaxRetries = maxRetries;
+                CurrentTry = currentTry;
+            }
+
+            public int MaxRetries { get; }
+            public int CurrentTry { get; }
+
+            public Retries CreateNextRetry()
+            {
+                return new Retries(this.MaxRetries, this.CurrentTry + 1);
+            }
+
+            public bool DoneRetries()
+            {
+                return CurrentTry >= MaxRetries;
+            }
+        }
+
+        public class DomainMessageProcessingContext
+        {
+            public DomainMessageProcessingContext(
+                Retries retries, 
+                MessageHeader messageHeader,
+                string sourceQueue)
+            {
+                Retries = retries;
+                MessageHeader = messageHeader;
+                SourceQueue = sourceQueue;
+            }
+
+            public Retries Retries { get; }
+            public MessageHeader MessageHeader { get; }
+            public string SourceQueue { get; }
+        }
+
+        public static IProcessMessageResult ProcessMsg(
+            object msg, 
+            Type msgType, 
+            DomainMessageProcessingContext messageContext)
         {
             var msgHandler = MessageHandlerLookup.GetMessageHandler(msgType);
             try
             {
-                msgHandler(msg);
+                msgHandler(messageContext, msg);
                 return new ProcessMessageSuccess();
             }
             catch (Exception e)
             {
-                if (retries == 0)
+                if (messageContext.Retries.DoneRetries())
                 {
                     Logger.Debug("Handler failed: Retries all used up. Give up");
                     return new HandlerError(e);
                 }
-                Logger.Trace($"Handler failed: {retries} remaining");
-                return ProcessMsg(msg, msgType, retries - 1);
+                return ProcessMsg(
+                    msg,
+                    msgType,
+                    new DomainMessageProcessingContext(
+                        messageContext.Retries.CreateNextRetry(),
+                        messageContext.MessageHeader,
+                        messageContext.SourceQueue));
             }
         }
 

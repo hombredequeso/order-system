@@ -4,7 +4,7 @@ namespace CarrierPidgin.EventBus.Module
 {
     public class EventRange
     {
-        public EventRange(ulong start, ulong end, ulong standardEventCount)
+        public EventRange(long start, long end, long standardEventCount)
         {
             if (end - start + 1 != standardEventCount)
                 throw new Exception("Invalid range of events");
@@ -15,9 +15,9 @@ namespace CarrierPidgin.EventBus.Module
             End = end;
         }
 
-        public ulong Start { get; }
-        public ulong End { get; }
+        public long Start { get; }
+        public long End { get; }
 
-        public ulong Count => End - Start + 1;
+        public long Count => End - Start + 1;
     }
 }

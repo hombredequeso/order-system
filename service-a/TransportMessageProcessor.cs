@@ -11,13 +11,15 @@ namespace CarrierPidgin.ServiceA
     {
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
 
-        public static PollState ProcessTransportMessage(PollState pollStatus, TransportMessage transportMessage)
+        public static PollState ProcessTransportMessage(
+            PollState pollStatus, 
+            TransportMessage transportMessage)
         {
             // Logger.Trace("---------------------------------------------------------");
             // Logger.Trace($"PROCESSING TRANSPORT MESSAGE FOR: {pollStatus.MessageStreamName}");
             List<DomainMessage> unprocessedMessages = transportMessage
                 .Messages
-                .Where(x => (int) (x.Header.MessageNumber) > pollStatus.LastMessageSuccessfullyProcessed)
+                .Where(x => (x.Header.MessageNumber) > pollStatus.LastMessageSuccessfullyProcessed)
                 .OrderBy(x => x.Header.MessageNumber)
                 .ToList();
 
@@ -25,13 +27,15 @@ namespace CarrierPidgin.ServiceA
             bool areUnprocessedMessagesInEarlierTransportMessage =
                 unprocessedMessages.Any() &&
                 prevLink != null &&
-                unprocessedMessages.Min(x => (int) x.Header.MessageNumber) != pollStatus.LastMessageSuccessfullyProcessed + 1;
+                unprocessedMessages.Min(x => x.Header.MessageNumber) != pollStatus.LastMessageSuccessfullyProcessed + 1;
 
             if (areUnprocessedMessagesInEarlierTransportMessage)
                 return pollStatus.With(prevLink.Href, 0, pollStatus.LastMessageSuccessfullyProcessed);
 
-            var initialState = MessageProcessingContext.Start();
-            var finalState = unprocessedMessages.Aggregate(initialState, TransportMessageProcessor.ProcessNext);
+            var initialState = MessageProcessingContext.Start(pollStatus.MessageStreamName);
+            var finalState = unprocessedMessages.Aggregate(
+                initialState, 
+                TransportMessageProcessor.ProcessNext);
 
 
             var nextLink = transportMessage.Header.Links.SingleOrDefault(l => l.Rel.Contains(Link.Next));
@@ -43,7 +47,7 @@ namespace CarrierPidgin.ServiceA
 
             var newLastMessageNumberProcessed = finalState
                     .ProcessedSuccessfully
-                    .Select(x => (int)x.Header.MessageNumber)
+                    .Select(x => x.Header.MessageNumber)
                     .Concat(new[] { pollStatus.LastMessageSuccessfullyProcessed })
                     .Max();
 
@@ -65,7 +69,7 @@ namespace CarrierPidgin.ServiceA
             if (processingContext.ProcessedUnsuccessfully.Any())
                 return processingContext.AddUnprocessed(domainMessage);
 
-            var processingResult = DomainMessageProcessor.ProcessMessage(domainMessage);
+            var processingResult = DomainMessageProcessor.ProcessMessage(domainMessage, processingContext.SourceQueue);
 
             return processingResult.GetType() == typeof(DomainMessageProcessor.ProcessMessageSuccess) 
                 ? processingContext.AddSuccess(domainMessage) 

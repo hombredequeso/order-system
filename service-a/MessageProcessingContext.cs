@@ -6,26 +6,29 @@ namespace CarrierPidgin.ServiceA
 {
     public class MessageProcessingContext
     {
-        protected MessageProcessingContext()
+        protected MessageProcessingContext(string sourceQueue)
         {
             Unprocessed = new List<DomainMessage>();
             ProcessedSuccessfully = new List<DomainMessage>();
             ProcessedUnsuccessfully = new List<DomainMessage>();
+            SourceQueue = sourceQueue;
         }
 
         public MessageProcessingContext(
             IEnumerable<DomainMessage> processedSuccessfully, 
             IEnumerable<DomainMessage> processedUnsuccessfully, 
-            IEnumerable<DomainMessage> unprocessed)
+            IEnumerable<DomainMessage> unprocessed,
+            string sourceQueue)
         {
             Unprocessed = unprocessed.ToList();
             ProcessedSuccessfully = processedSuccessfully.ToList();
             ProcessedUnsuccessfully = processedUnsuccessfully.ToList();
+            SourceQueue = sourceQueue;
         }
 
-        public static MessageProcessingContext Start()
+        public static MessageProcessingContext Start(string sourceQueue)
         {
-            return new MessageProcessingContext();
+            return new MessageProcessingContext(sourceQueue);
         }
 
         public  MessageProcessingContext AddSuccess(DomainMessage e)
@@ -33,7 +36,8 @@ namespace CarrierPidgin.ServiceA
             return new MessageProcessingContext(
                 ProcessedSuccessfully.Concat(new[] {e}),
                 ProcessedUnsuccessfully,
-                Unprocessed);
+                Unprocessed,
+                this.SourceQueue);
         }
 
         public  MessageProcessingContext AddFailure(DomainMessage e)
@@ -41,7 +45,8 @@ namespace CarrierPidgin.ServiceA
             return new MessageProcessingContext(
                 ProcessedSuccessfully,
                 ProcessedUnsuccessfully.Concat(new[] {e}),
-                Unprocessed);
+                Unprocessed,
+                this.SourceQueue);
         }
 
         public  MessageProcessingContext AddUnprocessed(DomainMessage e)
@@ -49,12 +54,14 @@ namespace CarrierPidgin.ServiceA
             return new MessageProcessingContext(
                 ProcessedSuccessfully,
                 ProcessedUnsuccessfully,
-                Unprocessed.Concat(new[] {e}));
+                Unprocessed.Concat(new[] {e}),
+                this.SourceQueue);
         }
 
         public List<DomainMessage> ProcessedSuccessfully { get; }
         public List<DomainMessage> ProcessedUnsuccessfully { get; }
         public List<DomainMessage> Unprocessed { get; }
+        public string SourceQueue { get;  }
         
     }
 }

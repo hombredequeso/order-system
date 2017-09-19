@@ -28,7 +28,7 @@ namespace CarrierPidgin.EventBus.Dal
         public static int InitialEventsInStream = 27;
         public static string StreamName = "teststream";
 
-        public const ulong EventCount = 10;
+        public const long EventCount = 10;
         // hence, valid event stream will be:
         // 0,9
         // 10,19
@@ -54,7 +54,7 @@ namespace CarrierPidgin.EventBus.Dal
                             }),
                         Header = new MessageHeader
                         {
-                            MessageNumber = (ulong) x,
+                            MessageNumber = (long) x,
                             Timestamp = baseTimestamp.AddSeconds(x),
                             EventType = SomethingHappenedEvent.DomainMessageType,
                             AggregateId = null,
@@ -97,21 +97,21 @@ namespace CarrierPidgin.EventBus.Dal
             var page = Events.Count / ps;
             var firstEvent = page * ps;
             var lastEvent = ((page + 1) * ps) - 1;
-            return new EventRange((ulong)firstEvent, (ulong)lastEvent, EventCount);
+            return new EventRange(firstEvent, lastEvent, EventCount);
         }
 
         public static List<DomainMessage> Get(EventRange range)
         {
             int eventCount = Events.Count;
 
-            if ((int)(range.Start + 1) > eventCount)
+            if ((range.Start + 1) > eventCount)
                 return new List<DomainMessage>();
 
-            var count = (int)range.End + 1 > eventCount
-                ? eventCount - (int)range.Start
-                : (int)range.Count;
+            var count = range.End + 1 > eventCount
+                ? eventCount - range.Start
+                : range.Count;
 
-            var subList = Events.GetRange((int) range.Start, count);
+            var subList = Events.GetRange((int)range.Start, (int)count);
             return subList;
         }
 
@@ -154,7 +154,7 @@ namespace CarrierPidgin.EventBus.Dal
                     Href = uriBuilder.ToString()
                 });
             }
-            if (NextPageExists((int)range.Count, itemsOnCurrentPage))
+            if (NextPageExists(range.Count, itemsOnCurrentPage))
             {
                 uriBuilder.Path = $"{eventStreamName}/{range.Start + range.Count},{range.End + range.Count}";
 
@@ -167,12 +167,12 @@ namespace CarrierPidgin.EventBus.Dal
             return links;
         }
 
-        public static bool NextPageExists(int itemsPerPage, int itemsOnCurrentPage)
+        public static bool NextPageExists(long itemsPerPage, long itemsOnCurrentPage)
         {
             return itemsOnCurrentPage == itemsPerPage;
         }
         
-        public static ulong GetPageForItem(ulong itemNumber, ulong pageSize)
+        public static long GetPageForItem(long itemNumber, long pageSize)
         {
             return itemNumber / pageSize;
         }

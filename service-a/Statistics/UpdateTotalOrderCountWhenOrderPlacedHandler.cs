@@ -1,6 +1,9 @@
+using System;
 using CarrierPidgin.Lib;
 using CarrierPidgin.OrderService.Messages;
 using CarrierPidgin.ServiceA.Dal;
+using Optional;
+using Optional.Linq;
 
 namespace CarrierPidgin.ServiceA.Statistics
 {
@@ -15,12 +18,19 @@ namespace CarrierPidgin.ServiceA.Statistics
 
         public void Handle(OrderPlacedEvent orderPlacedEvent)
         {
-            var repositoryResult = OrderStatisticsRepository.Get(_uow, OrderStatisticsRow.TotalOrdersId);
-            OrderStatistics totalOrderStatistics = repositoryResult.Item1;
+            Option<Tuple<OrderStatistics, OrderStatisticsRow>> repositoryResult = 
+                OrderStatisticsRepository.Get(OrderStatisticsRow.TotalOrdersId, _uow);
 
-            totalOrderStatistics.TotalOrders++;
+            var stats = repositoryResult.Map(x => x.Item1).ValueOr(new OrderStatistics());
+            stats.TotalOrders++;
 
-            OrderStatisticsRepository.UpdateOrInsert(_uow, totalOrderStatistics, repositoryResult.Item2, OrderStatisticsRow.TotalOrdersId);
+            var endResult = new Tuple<OrderStatistics, Option<OrderStatisticsRow>>(
+                stats, 
+                repositoryResult.Select(r => r.Item2));
+            OrderStatisticsRepository.UpdateOrInsert(
+                _uow, 
+                endResult,
+                OrderStatisticsRow.TotalOrdersId);
         }
     }
 }

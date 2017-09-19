@@ -11,8 +11,8 @@ namespace CarrierPidgin.EventBus.Module
         {
             Get["/teststream/{startEventNumber},{endEventNumber}"] = parameters =>
             {
-                ulong startEventNumber = ulong.Parse(parameters.startEventNumber);
-                ulong endEventNumber = ulong.Parse(parameters.endEventNumber);
+                long startEventNumber = long.Parse(parameters.startEventNumber);
+                long endEventNumber = long.Parse(parameters.endEventNumber);
                 EventRange eventRange = new EventRange(startEventNumber, endEventNumber, TestStreamRepository.EventCount);
 
                 Console.WriteLine($"teststream: {eventRange.Start} to {eventRange.End}");

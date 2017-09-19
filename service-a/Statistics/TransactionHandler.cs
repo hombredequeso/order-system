@@ -19,15 +19,15 @@ namespace CarrierPidgin.ServiceA.Statistics
         }
 
         public string ConnectionString { get; private set; }
-        public Action<T> Next {get; set; }
+        public Action<DomainMessageProcessor.DomainMessageProcessingContext, T> Next {get; set; }
         public UnitOfWork Uow { get; private set; }
 
-        public void Handle(T evt)
+        public void Handle(DomainMessageProcessor.DomainMessageProcessingContext ctx, T evt)
         {
             using (Uow = new UnitOfWork(ConnectionString))
             {
                 _registerUnitOfWork?.Invoke(Uow);
-                Next(evt);
+                Next(ctx, evt);
                 Uow.Commit();
             }
         }

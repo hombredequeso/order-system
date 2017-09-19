@@ -3,48 +3,55 @@ using CarrierPidgin.Lib;
 using CarrierPidgin.ServiceA.Dal;
 using CarrierPidgin.ServiceA.Statistics;
 using NUnit.Framework;
+using Optional;
+using Optional.Linq;
 
 namespace tests
 {
     [TestFixture]
     public class DbTests
     {
-        private const string ConnectionString =
-            "Host=localhost;Username=postgres;Password=mypassword;Database=carrierpidgin;Search Path=statistics";
+        public static string domain = "statistics";
 
 
         [Test]
         public void Can_Insert_OrderStatistics_Row()
         {
             Guid id = Guid.NewGuid();
-            using (var uow = new UnitOfWork(ConnectionString))
+            using (var uow = new UnitOfWork(TestConfig.GetConnectionString(domain)))
             {
                 OrderStatistics totalOrderStatistics = new OrderStatistics() { TotalOrders = 123 };
                 OrderStatisticsRepository.Insert(uow, totalOrderStatistics, id);
                 uow.Commit();
             }
 
-            using (var uow = new UnitOfWork(ConnectionString))
+            using (var uow = new UnitOfWork(TestConfig.GetConnectionString(domain)))
             {
-                var repositoryResult = OrderStatisticsRepository.Get(uow, id);
-                var dbRow = repositoryResult.Item2;
-                Assert.NotNull(dbRow);
-               
+                var repositoryResult = OrderStatisticsRepository.GetDbRow(id, uow);
+                Assert.IsTrue(repositoryResult.HasValue);
             }
         }
 
         [Test]
         public void Version_Test()
         {
-                using (var uow = new UnitOfWork(ConnectionString))
-                {
-                    Guid id = OrderStatisticsRow.TotalOrdersId;
-                    var repositoryResult = OrderStatisticsRepository.Get(uow, id);
-                    OrderStatistics totalOrderStatistics = repositoryResult.Item1;
-                    totalOrderStatistics.TotalOrders++;
-                    OrderStatisticsRepository.UpdateOrInsert(uow, totalOrderStatistics, repositoryResult.Item2, id);
-                    uow.Commit();
-                }
+            using (var uow = new UnitOfWork(TestConfig.GetConnectionString(domain)))
+            {
+                Guid id = Guid.NewGuid();
+                Option<Tuple<OrderStatistics, OrderStatisticsRow>> repositoryResult =
+                    OrderStatisticsRepository.Get(id, uow);
+
+                var stats = repositoryResult.Map(x => x.Item1).ValueOr(new OrderStatistics());
+                stats.TotalOrders++;
+
+                var endResult = new Tuple<OrderStatistics, Option<OrderStatisticsRow>>(
+                    stats,
+                    repositoryResult.Select(r => r.Item2));
+                OrderStatisticsRepository.UpdateOrInsert(
+                    uow,
+                    endResult,
+                    OrderStatisticsRow.TotalOrdersId);
+            }
 
 
         }

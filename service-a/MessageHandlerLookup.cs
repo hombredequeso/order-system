@@ -8,13 +8,13 @@ namespace CarrierPidgin.ServiceA
 {
     public static class MessageHandlerLookup
     {
-        public static Action<object> GetMessageHandler(Type messageType)
+        public static Action<DomainMessageProcessor.DomainMessageProcessingContext, object> GetMessageHandler(Type messageType)
         {
             if (messageType == typeof(SomethingHappenedEvent))
-                return e => new WidgetizeWhenSomethingHappenedEventHandler().Handle((SomethingHappenedEvent) e);
+                return (c,m) => new WidgetizeWhenSomethingHappenedEventHandler().Handle((SomethingHappenedEvent) m);
             if (messageType == typeof(OrderPlacedEvent))
-                return m => HandleConstruction.GetOrderPlacedHandler()((OrderPlacedEvent) m);
-            return e => { };
+                return (c, m) => HandleConstruction.GetOrderPlacedHandler()(c, (OrderPlacedEvent) m);
+            return (c,m) => { };
         }
     }
 }

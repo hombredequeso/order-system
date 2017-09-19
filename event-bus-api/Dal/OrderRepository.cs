@@ -18,8 +18,8 @@ namespace CarrierPidgin.EventBus.Dal
             NpgsqlConnection dbConnection,
             EventRange range)
         {
-            var offset = (int)range.Start;
-            var count = (int)range.Count;
+            var offset = range.Start;
+            var count = range.Count;
             var queryResult = dbConnection.Query<EventStoreItem>(
                 SelectEventStoreRowsQuery,
                 new {offset, limit = count});
@@ -32,7 +32,7 @@ namespace CarrierPidgin.EventBus.Dal
         {
             List<EventStoreItem> evts = GetEvents(dbConnection, range);
             List<DomainMessage> domainMsgs = evts
-                .Select((x,i) => ToDomainEvent(x, range.Start + (ulong)i))
+                .Select((x,i) => ToDomainEvent(x, range.Start + (long)i))
                 .ToList();
             return new TransportMessage()
             {
@@ -44,7 +44,7 @@ namespace CarrierPidgin.EventBus.Dal
             };
         }
 
-        private static DomainMessage ToDomainEvent(EventStoreItem item, ulong messageNumber)
+        private static DomainMessage ToDomainEvent(EventStoreItem item, long messageNumber)
         {
             return new DomainMessage()
             {
@@ -54,7 +54,7 @@ namespace CarrierPidgin.EventBus.Dal
                     MessageNumber = messageNumber,
                     Timestamp = item.Timestamp.ToUniversalTime(),
                     EventType = item.MessageType,
-                    VersionNumber = (ulong)item.Version
+                    VersionNumber = (long)item.Version
                 },
                 Message = item.SerializedMessage
             };

@@ -7,7 +7,7 @@ namespace CarrierPidgin.ServiceA
         public PollState(
             string nextUrl,
             uint delayMs,
-            int lastMessageSuccessfullyProcessed,
+            long lastMessageSuccessfullyProcessed,
             string messageStreamDescription,
             Dictionary<Poller.PollingError, uint> pollingErrorDelayPolicy,
             uint defaultDelayMs)
@@ -23,7 +23,7 @@ namespace CarrierPidgin.ServiceA
 
         public string NextUrl { get; }
         public uint DelayMs { get; }
-        public int LastMessageSuccessfullyProcessed { get; }
+        public long LastMessageSuccessfullyProcessed { get; }
         public  string MessageStreamName { get; }
 
         public uint DefaultDelayMs { get; }
@@ -65,7 +65,7 @@ namespace CarrierPidgin.ServiceA
         public PollState With(
             string nextUrl = null,
             uint? delayMs = null,
-            int? lastMessage = null)
+            long? lastMessage = null)
         {
             return new PollState(
                 nextUrl ?? this.NextUrl,

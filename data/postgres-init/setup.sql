@@ -18,9 +18,9 @@ CREATE SCHEMA "order"
 -- Order.OrderEvent
 CREATE TABLE "order"."OrderEvent"
 (
-    "dbId" SERIAL NOT NULL,
+    "dbId" bigserial NOT NULL,
     "Id" uuid NOT NULL,
-    "Version" integer NOT NULL,
+    "Version" bigint NOT NULL,
     "MessageType" character varying(100) COLLATE pg_catalog."default" NOT NULL,
     "SerializedMessage" json NOT NULL,
     "Timestamp" timestamp with time zone NOT NULL,
@@ -47,7 +47,7 @@ CREATE TABLE "statistics"."OrderStatistics"
 (
     "Id" uuid NOT NULL,
     "TotalOrders" integer NOT NULL,
-    "Version" integer NOT NULL,
+    "Version" bigint NOT NULL,
     "UpdatedTimestamp" timestamp with time zone NOT NULL,
     CONSTRAINT "OrderStatistics_pkey" PRIMARY KEY ("Id")
 )
@@ -57,5 +57,25 @@ WITH (
 TABLESPACE pg_default;
 
 ALTER TABLE "statistics"."OrderStatistics"
+    OWNER to postgres;
+
+--  statistics.MessageQueueProcessingDetails (for message de-dup.)
+
+CREATE TABLE "statistics"."MessageQueueProcessingDetails"
+(
+    "Id" uuid NOT NULL,
+--    "QueueName" character varying(100) COLLATE pg_catalog."default" NOT NULL,
+    "QueueName" text NOT NULL,
+    "LastMessageNumber" bigint NOT NULL,
+    "Version" bigint NOT NULL,
+    "UpdatedTimestamp" timestamp with time zone NOT NULL,
+    CONSTRAINT "MessageQueueProcessingDetails_Statistics_pkey" PRIMARY KEY ("Id")
+)
+WITH (
+    OIDS = FALSE
+)
+TABLESPACE pg_default;
+
+ALTER TABLE "statistics"."MessageQueueProcessingDetails"
     OWNER to postgres;
 

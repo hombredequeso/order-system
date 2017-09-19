@@ -9,7 +9,7 @@ namespace CarrierPidgin.ServiceA.Statistics
         private const string ConnectionString =
             "Host=localhost;Username=postgres;Password=mypassword;Database=carrierpidgin;Search Path=statistics";
 
-        public static Action<OrderPlacedEvent> GetOrderPlacedHandler()
+        public static Action<DomainMessageProcessor.DomainMessageProcessingContext, OrderPlacedEvent> GetOrderPlacedHandler()
         {
             UnitOfWork unitOfWorkContainer = null;
             Action<OrderPlacedEvent> businessHandlerAction = e =>
@@ -18,20 +18,21 @@ namespace CarrierPidgin.ServiceA.Statistics
                 businessHandler.Handle(e);
             };
 
-            Action<OrderPlacedEvent> deDupAction = e =>
+            Action<DomainMessageProcessor.DomainMessageProcessingContext, OrderPlacedEvent> deDupAction = (c,e) =>
             {
                 var handler = new DeDupHandler<OrderPlacedEvent>(unitOfWorkContainer);
                 handler._next = businessHandlerAction;
-                handler.Handle(e);
+                string queueNamme = null;
+                handler.Handle(e, c.SourceQueue, c.MessageHeader.MessageNumber);
             };
 
-            Action<OrderPlacedEvent> transHandlerAction = e =>
+            Action<DomainMessageProcessor.DomainMessageProcessingContext, OrderPlacedEvent> transHandlerAction = (c,e) =>
             {
                 var handler = new TransactionHandler<OrderPlacedEvent>(
                     ConnectionString,
                     uow => unitOfWorkContainer = uow);
                 handler.Next = deDupAction;
-                handler.Handle(e);
+                handler.Handle(c, e);
             };
             return transHandlerAction;
         }

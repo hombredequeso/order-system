@@ -11,11 +11,11 @@ namespace CarrierPidgin.Lib
 
     public class MessageHeader
     {
-        public ulong MessageNumber { get; set; }
+        public long MessageNumber { get; set; }
         public DateTimeOffset Timestamp { get; set; }
         public string EventType { get; set; }
         public string AggregateId { get; set; }
-        public ulong? VersionNumber { get; set; }
+        public long? VersionNumber { get; set; }
 
         public override string ToString()
         {

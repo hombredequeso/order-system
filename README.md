@@ -42,6 +42,32 @@ docker exec -it some-postgres psql -U postgres -f /home/setup.sql
 
 The file data/carrier-pidgin.postman_collection.json contains a sample collection of sample api requests that can be loaded in to [Postman](https://www.getpostman.com/).
 
+## Getting Started with Postgres on Windows
+There are a variety of ways to get a dev postgres setup going. The following is what I use, with basic installation and getting started instructions.
+* Run the postgres database server in docker, as above.
+* For a GUI database administration client, download and install [pgadmin](https://www.pgadmin.org/download/pgadmin-4-windows/). Assuming you have used any other UI based database admin clients, this should be pretty familiar.
+* In the WSL (Windows subsystem for linux) install psql, a terminal based PostgreSQL client, as follows:
+
+```shell
+sudo apt-get update
+sudo apt-get install postgresql postgresql-contrib
+psql -p 5432 -h localhost -U postgres
+```
+
+Once in psql, various psql (administration) commands and sql commands can be run. Just don't forget the semi-colon at the end of a sql commands.
+e.g.
+To list the databases:
+
+```shell
+postgres=# \l
+```
+
+To delete a database:
+
+```shell
+DROP DATABASE carrierpidgin;
+```
+
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details
