@@ -33,7 +33,7 @@ namespace tests
         }
 
         [Test]
-        public void Version_Test()
+        public void Can_Create_New_OrderStatisticsRow()
         {
             using (var uow = new UnitOfWork(TestConfig.GetConnectionString(domain)))
             {
@@ -50,10 +50,9 @@ namespace tests
                 OrderStatisticsRepository.UpdateOrInsert(
                     uow,
                     endResult,
-                    OrderStatisticsRow.TotalOrdersId);
+                    id);
+                uow.Commit();
             }
-
-
         }
     }
 }

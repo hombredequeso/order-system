@@ -61,11 +61,12 @@ namespace CarrierPidgin.ServiceA
 
                 while (!ct.IsCancellationRequested)
                 {
+                    var messageStreamName = new MessageStreamName(streamState.Description);
                     var pollStatus = new PollState(
                         startUrl, 
                         initialPollRateMs, 
                         streamState.LastSuccessfullyProcessedMessage,
-                        streamState.Description,
+                        messageStreamName,
                         PollingErrorPolicy,
                         initialPollRateMs);
 

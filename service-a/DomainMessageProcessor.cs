@@ -29,7 +29,7 @@ namespace CarrierPidgin.ServiceA
 
         public static IProcessMessageResult ProcessMessage(
             DomainMessage message, 
-            string queueuName)
+            MessageStreamName queueuName)
         {
             Logger.Trace($"ProcessMessage: {message.Header}");
             var msgTypeStr = message.Header.EventType;
@@ -82,7 +82,7 @@ namespace CarrierPidgin.ServiceA
             public DomainMessageProcessingContext(
                 Retries retries, 
                 MessageHeader messageHeader,
-                string sourceQueue)
+                MessageStreamName sourceQueue)
             {
                 Retries = retries;
                 MessageHeader = messageHeader;
@@ -91,7 +91,7 @@ namespace CarrierPidgin.ServiceA
 
             public Retries Retries { get; }
             public MessageHeader MessageHeader { get; }
-            public string SourceQueue { get; }
+            public MessageStreamName SourceQueue { get; }
         }
 
         public static IProcessMessageResult ProcessMsg(
@@ -99,7 +99,7 @@ namespace CarrierPidgin.ServiceA
             Type msgType, 
             DomainMessageProcessingContext messageContext)
         {
-            var msgHandler = MessageHandlerLookup.GetMessageHandler(msgType);
+            var msgHandler = HandlerFactory.GetForMessageType(msgType);
             try
             {
                 msgHandler(messageContext, msg);

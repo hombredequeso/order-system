@@ -6,7 +6,7 @@ namespace CarrierPidgin.ServiceA
 {
     public class MessageProcessingContext
     {
-        protected MessageProcessingContext(string sourceQueue)
+        protected MessageProcessingContext(MessageStreamName sourceQueue)
         {
             Unprocessed = new List<DomainMessage>();
             ProcessedSuccessfully = new List<DomainMessage>();
@@ -18,7 +18,7 @@ namespace CarrierPidgin.ServiceA
             IEnumerable<DomainMessage> processedSuccessfully, 
             IEnumerable<DomainMessage> processedUnsuccessfully, 
             IEnumerable<DomainMessage> unprocessed,
-            string sourceQueue)
+            MessageStreamName sourceQueue)
         {
             Unprocessed = unprocessed.ToList();
             ProcessedSuccessfully = processedSuccessfully.ToList();
@@ -26,7 +26,7 @@ namespace CarrierPidgin.ServiceA
             SourceQueue = sourceQueue;
         }
 
-        public static MessageProcessingContext Start(string sourceQueue)
+        public static MessageProcessingContext Start(MessageStreamName sourceQueue)
         {
             return new MessageProcessingContext(sourceQueue);
         }
@@ -61,7 +61,7 @@ namespace CarrierPidgin.ServiceA
         public List<DomainMessage> ProcessedSuccessfully { get; }
         public List<DomainMessage> ProcessedUnsuccessfully { get; }
         public List<DomainMessage> Unprocessed { get; }
-        public string SourceQueue { get;  }
+        public MessageStreamName SourceQueue { get;  }
         
     }
 }

@@ -8,7 +8,7 @@ namespace CarrierPidgin.ServiceA
             string nextUrl,
             uint delayMs,
             long lastMessageSuccessfullyProcessed,
-            string messageStreamDescription,
+            MessageStreamName messageStreamName,
             Dictionary<Poller.PollingError, uint> pollingErrorDelayPolicy,
             uint defaultDelayMs)
         {
@@ -16,7 +16,7 @@ namespace CarrierPidgin.ServiceA
             DelayMs = delayMs;
             DefaultDelayMs = defaultDelayMs;
             LastMessageSuccessfullyProcessed = lastMessageSuccessfullyProcessed;
-            MessageStreamName = messageStreamDescription;
+            MessageStreamName = messageStreamName;
             PollingErrorDelayPolicy = pollingErrorDelayPolicy;
         }
 
@@ -24,7 +24,7 @@ namespace CarrierPidgin.ServiceA
         public string NextUrl { get; }
         public uint DelayMs { get; }
         public long LastMessageSuccessfullyProcessed { get; }
-        public  string MessageStreamName { get; }
+        public  MessageStreamName MessageStreamName { get; }
 
         public uint DefaultDelayMs { get; }
         public static uint NoDelay = 0;

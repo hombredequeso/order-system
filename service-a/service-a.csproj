@@ -82,10 +82,11 @@
     <Compile Include="Dal\OrderStatisticsRow.cs" />
     <Compile Include="DomainMessageProcessor.cs" />
     <Compile Include="MessageProcessingContext.cs" />
+    <Compile Include="MessageStreamName.cs" />
     <Compile Include="MessageStreamRepository.cs" />
     <Compile Include="MessageStreamState.cs" />
     <Compile Include="MessageTransform.cs" />
-    <Compile Include="MessageHandlerLookup.cs" />
+    <Compile Include="HandlerFactory.cs" />
     <Compile Include="Statistics\AddToStatsWhenOrderPlacedHandler.cs" />
     <Compile Include="OrderedMessageStream.cs" />
     <Compile Include="Poller.cs" />
@@ -94,7 +95,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ServiceLocator.cs" />
     <Compile Include="Statistics\DeDupHandler.cs" />
-    <Compile Include="Statistics\HandleConstruction.cs" />
+    <Compile Include="Statistics\HandlerFactory.cs" />
     <Compile Include="Statistics\OrderStatistics.cs" />
     <Compile Include="Statistics\TransactionHandler.cs" />
     <Compile Include="Statistics\UpdateTotalOrderCountWhenOrderPlacedHandler.cs" />

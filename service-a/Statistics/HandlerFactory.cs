@@ -4,7 +4,7 @@ using CarrierPidgin.OrderService.Messages;
 
 namespace CarrierPidgin.ServiceA.Statistics
 {
-    public static class HandleConstruction
+    public static class HandlerFactory
     {
         private const string ConnectionString =
             "Host=localhost;Username=postgres;Password=mypassword;Database=carrierpidgin;Search Path=statistics";

@@ -1,5 +1,6 @@
 ﻿using System;
 using CarrierPidgin.Lib;
+using CarrierPidgin.ServiceA;
 using CarrierPidgin.ServiceA.Statistics;
 using FluentAssertions;
 using NUnit.Framework;
@@ -20,12 +21,14 @@ namespace tests
         [Test]
         public void Handle_Creates_Entry_Where_None_Exists_For_A_Queue()
         {
-            string queueName = Guid.NewGuid().ToString();
+            MessageStreamName queueName = new MessageStreamName(Guid.NewGuid().ToString());
             long messageNumber = 1;
 
             using (var uow = new UnitOfWork(ConnectionString))
             {
-                Option<Tuple<long, MessageQueueProcessingDetailsRow>> lastProcessedEntry = MessageNumberRepository.GetLastProcessedMessageNumber(uow, queueName);
+                var lastProcessedEntry = MessageNumberRepository.GetLastProcessedMessageNumber(
+                    uow, 
+                    queueName);
                 Assert.IsTrue(!lastProcessedEntry.HasValue);
             }
 

@@ -22,11 +22,11 @@ namespace CarrierPidgin.ServiceA.Statistics
 
         public static Option<Tuple<long, MessageQueueProcessingDetailsRow>> GetLastProcessedMessageNumber(
             UnitOfWork uow, 
-            string queueName)
+            MessageStreamName queueName)
         {
             var getQuery =
                 @"SELECT ""Id"", ""QueueName"", ""LastMessageNumber"", ""Version"", ""UpdatedTimestamp"" from ""MessageQueueProcessingDetails"" where ""QueueName"" = @queueName";
-            object queryParameters = new {QueueName = queueName};
+            object queryParameters = new {QueueName = queueName.Value};
 
             Option<MessageQueueProcessingDetailsRow> result2 = 
                 DbRepository.GetSingle<MessageQueueProcessingDetailsRow>(getQuery, queryParameters, uow);
@@ -64,13 +64,16 @@ namespace CarrierPidgin.ServiceA.Statistics
                 ( ""Id"", ""QueueName"", ""Version"", ""LastMessageNumber"", ""UpdatedTimestamp"") 
                 VALUES (@Id, @QueueName, @Version, @LastMessageNumber, @UpdatedTimestamp)";
 
-        public static void InsertLastProcessedMessage(UnitOfWork uow, long messageNumber, string queueName)
+        public static void InsertLastProcessedMessage(
+            UnitOfWork uow, 
+            long messageNumber, 
+            MessageStreamName queueName)
         {
             MessageQueueProcessingDetailsRow d = new MessageQueueProcessingDetailsRow()
             {
                 Id = Guid.NewGuid(),
                 LastMessageNumber = messageNumber,
-                QueueName = queueName,
+                QueueName = queueName.Value,
                 Version = 0,
                 UpdatedTimestamp = DateTimeOffset.UtcNow
             };
@@ -83,7 +86,7 @@ namespace CarrierPidgin.ServiceA.Statistics
 
         internal static void InsertOrUpdateLastProcessedMessage(
             UnitOfWork uow, 
-            string queueName, 
+            MessageStreamName queueName, 
             long messageNumber, 
             Option<MessageQueueProcessingDetailsRow> option)
         {
@@ -113,7 +116,7 @@ namespace CarrierPidgin.ServiceA.Statistics
 
         public void Handle(
             T evt, 
-            string queueName, 
+            MessageStreamName queueName, 
             long messageNumber)
         {
             Option<Tuple<long, MessageQueueProcessingDetailsRow>> lastProcessedMessage = 
