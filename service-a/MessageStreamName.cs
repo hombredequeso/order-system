@@ -2,24 +2,13 @@ using System;
 
 namespace CarrierPidgin.ServiceA
 {
-    // MessageStreamName is a wrapper around a string.
-    // From the perspective of data types, it avoids treating many different things as strings.
-    // For instance, this would be nonsense code:
-    // string messageStreamName = "myMessageStreamName";
-    // string serializedMessage = JsonConvert.Serialize(someMessageObject);
-    // messageStreamName = serializedMessage;
-    //
-    // It is clearly nonsense because a messageStreamName is not the same type of thing as a serializedMessage.
-    // The benefits of this pattern is:
-    // 1. It avoids assigning one type to another type, as above.
-    // 2. It enforces validity at the edges of the architecture. By the time one is in the handler/domain model
-    //    validation of the type has taken place, and it is sufficient to simply keep passing a MessageStreamName
-    //    around.
-    //    Of course, the main problem that then remains is that C# allows a MessageStreamName instance to be null.
-    //    If that bothers you, use F# (it bothers me!).
+    // https://github.com/hombredequeso/carrier-pidgin/wiki/Strong-Types
 
-    public class MessageStreamName
+    public class MessageStreamName : IEquatable<MessageStreamName>
     {
+        public string Value { get; }
+        public static int MaximumStreamNameLength = 100;
+
         public MessageStreamName(string messageStreamNameStr)
         {
             if (string.IsNullOrWhiteSpace(messageStreamNameStr))
@@ -29,8 +18,24 @@ namespace CarrierPidgin.ServiceA
             Value = messageStreamNameStr;
         }
 
-        public string Value { get; }
-        public static int MaximumStreamNameLength = 100;
+        public bool Equals(MessageStreamName other)
+        {
+            if (ReferenceEquals(null, other)) return false;
+            if (ReferenceEquals(this, other)) return true;
+            return string.Equals(Value, other.Value);
+        }
 
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj)) return false;
+            if (ReferenceEquals(this, obj)) return true;
+            if (obj.GetType() != this.GetType()) return false;
+            return Equals((MessageStreamName) obj);
+        }
+
+        public override int GetHashCode()
+        {
+            return Value.GetHashCode();
+        }
     }
 }
