@@ -2,6 +2,9 @@
 
 namespace CarrierPidgin.OrderService.ApiEntity
 {
+    // Reference for Siren definition:
+    // https://github.com/kevinswiber/siren
+
     public class SirenEntity
     {
         public List<string> Class { get; set; }
