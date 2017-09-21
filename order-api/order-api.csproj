@@ -98,10 +98,17 @@
     <Compile Include="..\lib\OrderEvents.cs">
       <Link>Domain\OrderEvents.cs</Link>
     </Compile>
+    <Compile Include="ApiEntity\Action.cs" />
+    <Compile Include="ApiEntity\Link.cs" />
+    <Compile Include="ApiEntity\OrderLine.cs" />
+    <Compile Include="ApiEntity\OrderSirenProperties.cs" />
+    <Compile Include="ApiEntity\PostOrderBody.cs" />
+    <Compile Include="ApiEntity\SirenEntity.cs" />
     <Compile Include="Dal\OrderRepository.cs" />
     <Compile Include="Dal\UnitOfWork.cs" />
     <Compile Include="Domain\Order.cs" />
     <Compile Include="Module\OrderModule.cs" />
+    <Compile Include="Module\SirenOrderFactory.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Startup.cs" />

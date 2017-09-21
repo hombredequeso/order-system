@@ -21,43 +21,9 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n\t\"description\": \"MyFirstOrder\"\n}"
+					"raw": "{\n\t\"description\": \"MyFirstOrder\",\n\t\"lines\": [\n\t\t{\n\t\t\t\"itemId\" : \"63d1212c-96b8-4d7e-97dc-5395bce13300\",\n\t\t\t\"quantity\": 1,\n\t\t\t\"pricePerItem\": \"1.23\"\n\t\t},\n\t\t{\n\t\t\t\"itemId\" : \"63d1212c-96b8-4d7e-97dc-5395bce13301\",\n\t\t\t\"quantity\": 2,\n\t\t\t\"pricePerItem\": \"98.76\"\n\t\t}\n\t]\n}"
 				},
 				"description": "Create a new order"
-			},
-			"response": []
-		},
-		{
-			"name": "http://localhost:8081/order/3e107d1e-5cba-42aa-8227-f78429096091/cancel",
-			"request": {
-				"url": "http://localhost:8081/order/3e107d1e-5cba-42aa-8227-f78429096091/cancel",
-				"method": "POST",
-				"header": [
-					{
-						"key": "Accept",
-						"value": "application/json",
-						"description": ""
-					}
-				],
-				"body": {},
-				"description": "Cancel order"
-			},
-			"response": []
-		},
-		{
-			"name": "http://localhost:8081/order/3e107d1e-5cba-42aa-8227-f78429096091/activate",
-			"request": {
-				"url": "http://localhost:8081/order/3e107d1e-5cba-42aa-8227-f78429096091/activate",
-				"method": "POST",
-				"header": [
-					{
-						"key": "Accept",
-						"value": "application/json",
-						"description": ""
-					}
-				],
-				"body": {},
-				"description": "Activate an order"
 			},
 			"response": []
 		},

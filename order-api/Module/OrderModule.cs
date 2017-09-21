@@ -1,72 +1,15 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
+using CarrierPidgin.OrderService.ApiEntity;
 using CarrierPidgin.OrderService.Dal;
 using CarrierPidgin.OrderService.Domain;
 using Nancy;
 using Nancy.ModelBinding;
 using Npgsql;
+using OrderLine = CarrierPidgin.OrderService.ApiEntity.OrderLine;
 
 namespace CarrierPidgin.OrderService.Module
 {
-    public class OrderLine
-    {
-        public Guid ItemId { get; set; }
-        public int Quantity { get; set; }
-        public decimal PricePerItem { get; set; }
-    }
-
-    public class PostOrderBody
-    {
-        public PostOrderBody()
-        {
-            Lines = new List<OrderLine>();
-        }
-
-        public string Description { get; set; }
-        public List<OrderLine> Lines { get; set; }
-    }
-
-    public class ApiOrder
-    {
-        public Guid Id { get; set; }
-        public string Description { get; set; }
-        public string Status { get; set; }
-        public List<OrderLine> Lines { get; set; }
-
-        public static string GetStatus(Order.State state)
-        {
-            switch (state)
-            {
-                case Order.State.Active: return "active";
-                case Order.State.Cancelled: return "cancelled";
-                default: throw new Exception("Unknown order state");
-            }
-        }
-
-        public static ApiOrder Get(Order order)
-        {
-            return new ApiOrder
-            {
-                Description = order.Description,
-                Id = order.OrderNumber,
-                Status = GetStatus(order.Status),
-                Lines = order.Lines.Select(GetLine).ToList()
-            };
-        }
-
-        public static OrderLine GetLine(Domain.OrderLine domainLine)
-        {
-            return new OrderLine()
-            {
-                ItemId = domainLine.ItemId,
-                PricePerItem = domainLine.PricePerItem,
-                Quantity = domainLine.Quantity
-            };
-        }
-    }
-
-
     public class OrderModule : NancyModule
     {
         private const string ConnectionString =
@@ -77,8 +20,8 @@ namespace CarrierPidgin.OrderService.Module
             Post["/order"] = parameters =>
             {
                 var postContent = this.Bind<PostOrderBody>();
-
                 var orderNumber = Guid.NewGuid();
+
                 using (var uow = new UnitOfWork(ConnectionString))
                 {
                     var lines = postContent.Lines.Select(ToDomainLine).ToList();
@@ -88,7 +31,7 @@ namespace CarrierPidgin.OrderService.Module
                         lines);
                     OrderRepository.Save(uow, order, DateTimeOffset.UtcNow);
                     uow.Commit();
-                    return Response.AsJson(ApiOrder.Get(order), HttpStatusCode.Created);
+                    return Response.AsJson(SirenOrderFactory.Get(order, Context.Request.Url.SiteBase), HttpStatusCode.Created);
                 }
             };
 
@@ -99,13 +42,14 @@ namespace CarrierPidgin.OrderService.Module
                 {
                     var order = OrderRepository.GetOrder(dbConnection, orderNumber);
                     return order != null
-                    ? Response.AsJson(ApiOrder.Get(order), HttpStatusCode.OK)
+                    ? Response.AsJson(SirenOrderFactory.Get(order, Context.Request.Url.SiteBase), HttpStatusCode.OK)
                     : HttpStatusCode.NotFound;
 
                 }
             };
 
-            Post["/order/{id}/cancel"] = parameters =>
+
+            Post["/order/{id}/cancellation"] = parameters =>
             {
                 Guid orderId = Guid.Parse(parameters.id);
                 using (var uow = new UnitOfWork(ConnectionString))
@@ -117,11 +61,11 @@ namespace CarrierPidgin.OrderService.Module
                     order.Cancel();
                     OrderRepository.Save(uow, order, DateTimeOffset.UtcNow);
                     uow.Commit();
-                    return Response.AsJson(ApiOrder.Get(order), HttpStatusCode.OK);
+                    return Response.AsJson(SirenOrderFactory.Get(order, Context.Request.Url.SiteBase), HttpStatusCode.OK);
                 }
             };
 
-            Post["/order/{id}/activate"] = parameters =>
+            Post["/order/{id}/activation"] = parameters =>
             {
                 Guid orderId = Guid.Parse(parameters.id);
                 using (var uow = new UnitOfWork(ConnectionString))
@@ -133,7 +77,7 @@ namespace CarrierPidgin.OrderService.Module
                     order.Activate();
                     OrderRepository.Save(uow, order, DateTimeOffset.UtcNow);
                     uow.Commit();
-                    return Response.AsJson(ApiOrder.Get(order), HttpStatusCode.OK);
+                    return Response.AsJson(SirenOrderFactory.Get(order, Context.Request.Url.SiteBase), HttpStatusCode.OK);
                 }
             };
         }
