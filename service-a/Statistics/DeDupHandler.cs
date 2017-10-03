@@ -19,8 +19,6 @@ namespace CarrierPidgin.ServiceA.Statistics
 
     public static class MessageNumberRepository
     {
-
-
         public static Option<Tuple<long, MessageQueueProcessingDetailsRow>> GetLastProcessedMessageNumber(
             UnitOfWork uow, 
             MessageStreamName queueName)

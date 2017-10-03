@@ -1,12 +1,12 @@
 ﻿using System.Collections.Generic;
 
-namespace CarrierPidgin.ServiceA.Bus.Sample
+namespace CarrierPidgin.ServiceA.Bus
 {
-    public class TestOrderedMessageStream
+    public class MessageStream
     {
-        public TestOrderedMessageStream(
+        public MessageStream(
             string name, 
-            int lastSuccessfullyProcessedMessage, 
+            long lastSuccessfullyProcessedMessage, 
             string description,
             uint defaultPollingDelayMs,
             Dictionary<HttpMessagePoller.PollingError, uint> pollingErrorPolicy)
@@ -20,11 +20,11 @@ namespace CarrierPidgin.ServiceA.Bus.Sample
 
         public string Description { get; set; }
         public string Name { get; set; }
-        public int LastSuccessfullyProcessedMessage { get; set; }
+        public long LastSuccessfullyProcessedMessage { get; set; }
 
         public Dictionary<HttpMessagePoller.PollingError, uint> PollingErrorPolicy { get; set; }
         public uint DefaultDelayMs { get; set; }
 
-        public static int NoMessagesProcessed = -1;
+        public static long NoMessagesProcessed = -1;
     }
 }

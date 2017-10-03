@@ -7,9 +7,6 @@ namespace CarrierPidgin.ServiceA.Statistics
 {
     public static class HandlerFactory
     {
-        private const string ConnectionString =
-            "Host=localhost;Username=postgres;Password=mypassword;Database=carrierpidgin;Search Path=statistics";
-
         public static Action<DomainMessageProcessor.DomainMessageProcessingContext, OrderPlacedEvent> GetOrderPlacedHandler()
         {
             UnitOfWork unitOfWorkContainer = null;
@@ -30,7 +27,7 @@ namespace CarrierPidgin.ServiceA.Statistics
             Action<DomainMessageProcessor.DomainMessageProcessingContext, OrderPlacedEvent> transHandlerAction = (c,e) =>
             {
                 var handler = new TransactionHandler<OrderPlacedEvent>(
-                    ConnectionString,
+                    Dal.Database.ConnectionString,
                     uow => unitOfWorkContainer = uow);
                 handler.Next = deDupAction;
                 handler.Handle(c, e);

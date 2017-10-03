@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading;
+using CarrierPidgin.Lib;
 using CarrierPidgin.OrderService.Messages;
 using CarrierPidgin.ServiceA.Bus;
-using CarrierPidgin.ServiceA.Bus.Sample;
 using CarrierPidgin.TestService.Events;
 using NLog;
 
@@ -34,8 +34,11 @@ namespace CarrierPidgin.ServiceA
             var cts = new CancellationTokenSource();
             var ct = cts.Token;
 
-            // TODO: need to get from the db the most recently processed message for the order stream.
-            List<TestOrderedMessageStream> messageStreams = TestMessageStreamRepository.Get();
+            List<MessageStream> messageStreams;
+            using (var uow = new UnitOfWork(Statistics.Dal.Database.ConnectionString))
+            {
+                messageStreams = MessageStreamRepository.Get(uow);
+            }
 
             var messageProcessingData = new MessageProcessingData(
                     GetDomainMessageTypeLookup(),

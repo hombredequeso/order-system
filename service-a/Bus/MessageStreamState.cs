@@ -4,7 +4,7 @@
     {
         public MessageStreamState(
             MessageStreamLocation streamLocation, 
-            int lastSuccessfullyProcessedMessage,
+            long lastSuccessfullyProcessedMessage,
             string description)
         {
             StreamLocation = streamLocation;
@@ -13,7 +13,7 @@
         }
 
         public MessageStreamLocation StreamLocation { get; }
-        public int LastSuccessfullyProcessedMessage { get; }
+        public long LastSuccessfullyProcessedMessage { get; }
         public string Description { get; }
     }
 }

@@ -30,7 +30,7 @@ namespace CarrierPidgin.EventBus.Module
 
             Get["/eventstream/orderdomain/order"] = parameters =>
             {
-                throw new NotImplementedException("TODO");
+                throw new NotImplementedException("Not yet implemented");
             };
             
         }

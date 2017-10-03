@@ -9,7 +9,6 @@ namespace CarrierPidgin.OrderService.Messages
         int Version { get; set; }
     }
 
-
     public class OrderLine
     {
         public OrderLine(Guid itemId, int quantity, decimal pricePerItem)
