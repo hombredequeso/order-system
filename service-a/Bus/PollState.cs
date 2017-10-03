@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace CarrierPidgin.ServiceA
+namespace CarrierPidgin.ServiceA.Bus
 {
     public class PollState
     {
@@ -9,7 +9,7 @@ namespace CarrierPidgin.ServiceA
             uint delayMs,
             long lastMessageSuccessfullyProcessed,
             MessageStreamName messageStreamName,
-            Dictionary<Poller.PollingError, uint> pollingErrorDelayPolicy,
+            Dictionary<HttpMessagePoller.PollingError, uint> pollingErrorDelayPolicy,
             uint defaultDelayMs)
         {
             NextUrl = nextUrl;
@@ -28,7 +28,7 @@ namespace CarrierPidgin.ServiceA
 
         public uint DefaultDelayMs { get; }
         public static uint NoDelay = 0;
-        public Dictionary<Poller.PollingError, uint> PollingErrorDelayPolicy { get; }
+        public Dictionary<HttpMessagePoller.PollingError, uint> PollingErrorDelayPolicy { get; }
 
         public bool CanPoll()
         {
@@ -40,7 +40,7 @@ namespace CarrierPidgin.ServiceA
             return DelayMs > 0;
         }
 
-        public PollState WithDelayFor(Poller.PollingError error)
+        public PollState WithDelayFor(HttpMessagePoller.PollingError error)
         {
             return new PollState(
                 this.NextUrl, 

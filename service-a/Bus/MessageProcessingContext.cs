@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using CarrierPidgin.Lib;
 
-namespace CarrierPidgin.ServiceA
+namespace CarrierPidgin.ServiceA.Bus
 {
     public class MessageProcessingContext
     {

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using Hdq.Lib;
 using Newtonsoft.Json;
 
-namespace CarrierPidgin.ServiceA
+namespace CarrierPidgin.ServiceA.Bus
 {
     public static class MessageTransform
     {

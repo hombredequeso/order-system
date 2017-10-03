@@ -1,15 +1,15 @@
 ﻿using System.Collections.Generic;
 
-namespace CarrierPidgin.ServiceA
+namespace CarrierPidgin.ServiceA.Bus.Sample
 {
-    public class OrderedMessageStream
+    public class TestOrderedMessageStream
     {
-        public OrderedMessageStream(
+        public TestOrderedMessageStream(
             string name, 
             int lastSuccessfullyProcessedMessage, 
             string description,
             uint defaultPollingDelayMs,
-            Dictionary<Poller.PollingError, uint> pollingErrorPolicy)
+            Dictionary<HttpMessagePoller.PollingError, uint> pollingErrorPolicy)
         {
             Name = name;
             LastSuccessfullyProcessedMessage = lastSuccessfullyProcessedMessage;
@@ -22,7 +22,7 @@ namespace CarrierPidgin.ServiceA
         public string Name { get; set; }
         public int LastSuccessfullyProcessedMessage { get; set; }
 
-        public Dictionary<Poller.PollingError, uint> PollingErrorPolicy { get; set; }
+        public Dictionary<HttpMessagePoller.PollingError, uint> PollingErrorPolicy { get; set; }
         public uint DefaultDelayMs { get; set; }
 
         public static int NoMessagesProcessed = -1;

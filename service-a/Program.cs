@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Net.Http;
-using System.Net.Http.Headers;
 using System.Threading;
-using System.Threading.Tasks;
+using CarrierPidgin.OrderService.Messages;
+using CarrierPidgin.ServiceA.Bus;
+using CarrierPidgin.ServiceA.Bus.Sample;
+using CarrierPidgin.TestService.Events;
 using NLog;
 
 namespace CarrierPidgin.ServiceA
@@ -11,6 +12,22 @@ namespace CarrierPidgin.ServiceA
     internal class Program
     {
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
+
+
+        private static Dictionary<string, Type> GetDomainMessageTypeLookup()
+        {
+            var allDomainMessageTypeLookup = new Dictionary<string, Type>();
+            foreach (var keyValuePair in SomethingHappenedEvent.MessageTypeLookup)
+            {
+                allDomainMessageTypeLookup.Add(keyValuePair.Key, keyValuePair.Value);
+            }
+            foreach (var kvp in OrderEvents.OrderEventType)
+            {
+                allDomainMessageTypeLookup.Add(kvp.Value, kvp.Key);
+            }
+            return allDomainMessageTypeLookup;
+        }
+
         private static void Main(string[] args)
         {
             Logger.Trace("Start");
@@ -18,21 +35,30 @@ namespace CarrierPidgin.ServiceA
             var ct = cts.Token;
 
 
-            var messageStreams = MessageStreamRepository.Get();
+            List<TestOrderedMessageStream> messageStreams = TestMessageStreamRepository.Get();
+            Dictionary<string, Type> messageTypeLookup = GetDomainMessageTypeLookup();
+
+            var messageProcessingData = new MessageProcessingData(
+                    GetDomainMessageTypeLookup(),
+                    HandlerFactory.GetHandlerForMessageType
+                );
+
 
             foreach (var messageStream in messageStreams)
             {
                 var streamLocation = ServiceLocator.GetMessageStreamLocation(messageStream.Name);
                 var messageStreamState = new MessageStreamState(
-                    streamLocation, 
+                    streamLocation,
                     messageStream.LastSuccessfullyProcessedMessage,
                     messageStream.Description);
 
-                MainInfinitePollerAsync(
-                    messageStreamState, 
-                    ct, 
-                    messageStream.DefaultDelayMs, 
-                    messageStream.PollingErrorPolicy);
+                MessageStreamPoller.MainInfinitePollerAsync(
+                    messageStreamState,
+                    ct,
+                    messageStream.DefaultDelayMs,
+                    messageStream.PollingErrorPolicy,
+                    HandlerFactory.GetHandlerForMessageType,
+                    messageTypeLookup);
             }
 
             Console.WriteLine("press enter to stop");
@@ -40,57 +66,22 @@ namespace CarrierPidgin.ServiceA
             cts.Cancel();
             Logger.Trace("End");
         }
+    }
 
-        public static async Task MainInfinitePollerAsync(
-            MessageStreamState streamState, 
-            CancellationToken ct,
-            uint initialPollRateMs,
-            Dictionary<Poller.PollingError, uint> PollingErrorPolicy)
+    public class MessageProcessingData
+    {
+        public MessageProcessingData(
+            Dictionary<string, Type> messageTypeLookup, 
+            Func<Type, Action<DomainMessageProcessor.DomainMessageProcessingContext, object>> domainMessageProcessorLookup)
         {
-            var streamLocation = streamState.StreamLocation;
-
-            using (HttpClient client = new HttpClient())
-            {
-                var uriBuilder = new UriBuilder(streamLocation.Scheme, streamLocation.Host, streamLocation.Port);
-                client.BaseAddress = uriBuilder.Uri;
-                client.DefaultRequestHeaders.Accept.Clear();
-                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-
-                uriBuilder.Path = streamLocation.Path;
-                var startUrl = uriBuilder.ToString();
-
-                while (!ct.IsCancellationRequested)
-                {
-                    var messageStreamName = new MessageStreamName(streamState.Description);
-                    var pollStatus = new PollState(
-                        startUrl, 
-                        initialPollRateMs, 
-                        streamState.LastSuccessfullyProcessedMessage,
-                        messageStreamName,
-                        PollingErrorPolicy,
-                        initialPollRateMs);
-
-                    while (pollStatus.CanPoll())
-                        pollStatus = await Execute(pollStatus, client, ct);
-                }
-            }
+            MessageTypeLookup = messageTypeLookup;
+            DomainMessageProcessorLookup = domainMessageProcessorLookup;
         }
 
-        public static async Task<PollState> Execute(PollState ps, HttpClient client, CancellationToken ct)
+        public Dictionary<string, Type> MessageTypeLookup { get; }
+        public Func<Type, Action<DomainMessageProcessor.DomainMessageProcessingContext, object>> DomainMessageProcessorLookup
         {
-            var transportMessage = await Poller.Poll(ps.NextUrl, client, ct);
-            PollState pollStatus = transportMessage.Match(
-                error =>
-                {
-                    TransportMessageProcessor.LogError(ps, error);
-                    return ps.WithDelayFor(error);
-                },
-                m => TransportMessageProcessor.ProcessTransportMessage(ps, m));
-
-            if (pollStatus.ShouldDelay())
-                await Task.Delay((int)pollStatus.DelayMs, ct);
-
-            return pollStatus;
+            get;
         }
     }
 }

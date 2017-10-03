@@ -1,5 +1,6 @@
 using System;
 using CarrierPidgin.Lib;
+using CarrierPidgin.ServiceA.Bus;
 using CarrierPidgin.ServiceA.Dal;
 using Dapper;
 using Optional;

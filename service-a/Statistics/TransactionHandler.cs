@@ -1,5 +1,6 @@
 using System;
 using CarrierPidgin.Lib;
+using CarrierPidgin.ServiceA.Bus;
 
 namespace CarrierPidgin.ServiceA.Statistics
 {

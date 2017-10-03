@@ -1,4 +1,4 @@
-﻿namespace CarrierPidgin.ServiceA
+﻿namespace CarrierPidgin.ServiceA.Bus
 {
     public class MessageStreamState
     {

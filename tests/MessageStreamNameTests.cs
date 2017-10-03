@@ -1,4 +1,5 @@
 ﻿using CarrierPidgin.ServiceA;
+using CarrierPidgin.ServiceA.Bus;
 using NUnit.Framework;
 using NUnit.Framework.Internal;
 

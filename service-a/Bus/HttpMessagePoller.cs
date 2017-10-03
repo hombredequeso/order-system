@@ -6,9 +6,9 @@ using CarrierPidgin.Lib;
 using Hdq.Lib;
 using NLog;
 
-namespace CarrierPidgin.ServiceA
+namespace CarrierPidgin.ServiceA.Bus
 {
-    public static class Poller
+    public static class HttpMessagePoller
     {
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
 
@@ -22,7 +22,7 @@ namespace CarrierPidgin.ServiceA
 
         public static async Task<Either<PollingError, TransportMessage>> Poll(string path, HttpClient httpClient, CancellationToken ct)
         {
-            Logger.Trace($"Poller.Poll GET {path}");
+            Logger.Trace($"HttpMessagePoller.Poll GET {path}");
             try
             {
                 using (HttpResponseMessage response = await httpClient.GetAsync(path, ct))

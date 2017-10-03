@@ -1,6 +1,6 @@
 using System;
 
-namespace CarrierPidgin.ServiceA
+namespace CarrierPidgin.ServiceA.Bus
 {
     // https://github.com/hombredequeso/carrier-pidgin/wiki/Strong-Types
 

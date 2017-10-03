@@ -1,9 +1,10 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using CarrierPidgin.Lib;
 using NLog;
 
-namespace CarrierPidgin.ServiceA
+namespace CarrierPidgin.ServiceA.Bus
 {
     // Responsible for processing a TransportMessage.
     // To change the policy of "must processes all messages in order", this would be the function to alter.
@@ -13,7 +14,10 @@ namespace CarrierPidgin.ServiceA
 
         public static PollState ProcessTransportMessage(
             PollState pollStatus, 
-            TransportMessage transportMessage)
+            TransportMessage transportMessage,
+            Func<Type, Action<DomainMessageProcessor.DomainMessageProcessingContext, object>> domainMessageProcessorLookup,
+            Dictionary<string, Type> messageTypeLookup
+            )
         {
             // Logger.Trace("---------------------------------------------------------");
             // Logger.Trace($"PROCESSING TRANSPORT MESSAGE FOR: {pollStatus.MessageStreamName}");
@@ -33,9 +37,17 @@ namespace CarrierPidgin.ServiceA
                 return pollStatus.With(prevLink.Href, 0, pollStatus.LastMessageSuccessfullyProcessed);
 
             var initialState = MessageProcessingContext.Start(pollStatus.MessageStreamName);
+
+            Func<MessageProcessingContext, DomainMessage, MessageProcessingContext> processMessageF =
+                (context, domainMessage) => TransportMessageProcessor.ProcessNext(
+                    context, 
+                    domainMessage, 
+                    domainMessageProcessorLookup,
+                    messageTypeLookup);
+
             var finalState = unprocessedMessages.Aggregate(
-                initialState, 
-                TransportMessageProcessor.ProcessNext);
+                initialState,
+                processMessageF);
 
 
             var nextLink = transportMessage.Header.Links.SingleOrDefault(l => l.Rel.Contains(Link.Next));
@@ -64,38 +76,46 @@ namespace CarrierPidgin.ServiceA
 
         private static MessageProcessingContext ProcessNext(
             MessageProcessingContext processingContext, 
-            DomainMessage domainMessage)
+            DomainMessage domainMessage,
+            Func<Type, Action<DomainMessageProcessor.DomainMessageProcessingContext, object>> domainMessageProcessorLookup,
+            IDictionary<string, Type> allDomainMessageTypeLookup
+            )
         {
             if (processingContext.ProcessedUnsuccessfully.Any())
                 return processingContext.AddUnprocessed(domainMessage);
 
-            var processingResult = DomainMessageProcessor.ProcessMessage(domainMessage, processingContext.SourceQueue);
+            var processingResult = DomainMessageProcessor.ProcessMessage(
+                domainMessage, 
+                processingContext.SourceQueue,
+                domainMessageProcessorLookup,
+                allDomainMessageTypeLookup
+                );
 
             return processingResult.GetType() == typeof(DomainMessageProcessor.ProcessMessageSuccess) 
                 ? processingContext.AddSuccess(domainMessage) 
                 : processingContext.AddFailure(domainMessage);
         }
 
-        public static void LogError(PollState ps, Poller.PollingError error)
+        public static void LogError(PollState ps, HttpMessagePoller.PollingError error)
         {
             switch (error)
             {
-                case Poller.PollingError.UnableToConnect:
+                case HttpMessagePoller.PollingError.UnableToConnect:
                 {
                     Logger.Warn($"Error GET {ps.NextUrl}: Unable to connect to api");
                     break;
                 }
-                case Poller.PollingError.UnknownErrorOnGet:
+                case HttpMessagePoller.PollingError.UnknownErrorOnGet:
                 {
                     Logger.Error($"Error GET {ps.NextUrl}: Unknown error on get");
                     break;
                 }
-                case Poller.PollingError.ErrorMakingHttpRequest:
+                case HttpMessagePoller.PollingError.ErrorMakingHttpRequest:
                 {
                     Logger.Error($"Error GET {ps.NextUrl}: making request");
                     break;
                 }
-                case Poller.PollingError.ErrorDeserializingContent:
+                case HttpMessagePoller.PollingError.ErrorDeserializingContent:
                 {
                     Logger.Fatal($"Error GET {ps.NextUrl}: This is probably never going to work");
                     break;
