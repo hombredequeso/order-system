@@ -34,9 +34,8 @@ namespace CarrierPidgin.ServiceA
             var cts = new CancellationTokenSource();
             var ct = cts.Token;
 
-
+            // TODO: need to get from the db the most recently processed message for the order stream.
             List<TestOrderedMessageStream> messageStreams = TestMessageStreamRepository.Get();
-            Dictionary<string, Type> messageTypeLookup = GetDomainMessageTypeLookup();
 
             var messageProcessingData = new MessageProcessingData(
                     GetDomainMessageTypeLookup(),
@@ -57,31 +56,13 @@ namespace CarrierPidgin.ServiceA
                     ct,
                     messageStream.DefaultDelayMs,
                     messageStream.PollingErrorPolicy,
-                    HandlerFactory.GetHandlerForMessageType,
-                    messageTypeLookup);
+                    messageProcessingData);
             }
 
             Console.WriteLine("press enter to stop");
             Console.Read();
             cts.Cancel();
             Logger.Trace("End");
-        }
-    }
-
-    public class MessageProcessingData
-    {
-        public MessageProcessingData(
-            Dictionary<string, Type> messageTypeLookup, 
-            Func<Type, Action<DomainMessageProcessor.DomainMessageProcessingContext, object>> domainMessageProcessorLookup)
-        {
-            MessageTypeLookup = messageTypeLookup;
-            DomainMessageProcessorLookup = domainMessageProcessorLookup;
-        }
-
-        public Dictionary<string, Type> MessageTypeLookup { get; }
-        public Func<Type, Action<DomainMessageProcessor.DomainMessageProcessingContext, object>> DomainMessageProcessorLookup
-        {
-            get;
         }
     }
 }

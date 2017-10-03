@@ -13,11 +13,9 @@ namespace CarrierPidgin.ServiceA.Bus
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
 
         public static PollState ProcessTransportMessage(
-            PollState pollStatus, 
+            PollState pollStatus,
             TransportMessage transportMessage,
-            Func<Type, Action<DomainMessageProcessor.DomainMessageProcessingContext, object>> domainMessageProcessorLookup,
-            Dictionary<string, Type> messageTypeLookup
-            )
+            MessageProcessingData mpd)
         {
             // Logger.Trace("---------------------------------------------------------");
             // Logger.Trace($"PROCESSING TRANSPORT MESSAGE FOR: {pollStatus.MessageStreamName}");
@@ -40,10 +38,9 @@ namespace CarrierPidgin.ServiceA.Bus
 
             Func<MessageProcessingContext, DomainMessage, MessageProcessingContext> processMessageF =
                 (context, domainMessage) => TransportMessageProcessor.ProcessNext(
-                    context, 
-                    domainMessage, 
-                    domainMessageProcessorLookup,
-                    messageTypeLookup);
+                    context,
+                    domainMessage,
+                    mpd);
 
             var finalState = unprocessedMessages.Aggregate(
                 initialState,
@@ -77,19 +74,15 @@ namespace CarrierPidgin.ServiceA.Bus
         private static MessageProcessingContext ProcessNext(
             MessageProcessingContext processingContext, 
             DomainMessage domainMessage,
-            Func<Type, Action<DomainMessageProcessor.DomainMessageProcessingContext, object>> domainMessageProcessorLookup,
-            IDictionary<string, Type> allDomainMessageTypeLookup
-            )
+            MessageProcessingData mpd)
         {
             if (processingContext.ProcessedUnsuccessfully.Any())
                 return processingContext.AddUnprocessed(domainMessage);
 
             var processingResult = DomainMessageProcessor.ProcessMessage(
-                domainMessage, 
+                domainMessage,
                 processingContext.SourceQueue,
-                domainMessageProcessorLookup,
-                allDomainMessageTypeLookup
-                );
+                mpd);
 
             return processingResult.GetType() == typeof(DomainMessageProcessor.ProcessMessageSuccess) 
                 ? processingContext.AddSuccess(domainMessage) 

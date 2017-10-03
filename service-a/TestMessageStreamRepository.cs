@@ -1,6 +1,8 @@
 using System.Collections.Generic;
+using CarrierPidgin.ServiceA.Bus;
+using CarrierPidgin.ServiceA.Bus.Sample;
 
-namespace CarrierPidgin.ServiceA.Bus.Sample
+namespace CarrierPidgin.ServiceA
 {
     public static class TestMessageStreamRepository
     {
@@ -25,6 +27,7 @@ namespace CarrierPidgin.ServiceA.Bus.Sample
                     DefaultPollingErrorPolicy),
                 new TestOrderedMessageStream(
                     "eventstream/orderdomain/order/0,9", 
+                    // TODO: this next line should come from the db.
                     TestOrderedMessageStream.NoMessagesProcessed, 
                     "orderdomain/order stream #1",
                     DefaultDelayMs * 5,

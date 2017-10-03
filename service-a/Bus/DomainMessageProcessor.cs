@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using CarrierPidgin.Lib;
 using Hdq.Lib;
 using NLog;
@@ -11,17 +10,15 @@ namespace CarrierPidgin.ServiceA.Bus
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
 
         public static IProcessMessageResult ProcessMessage(
-            DomainMessage message, 
+            DomainMessage message,
             MessageStreamName queueuName,
-            Func<Type, Action<DomainMessageProcessor.DomainMessageProcessingContext, object>> domainMessageProcessorLookup,
-            IDictionary<string, Type> allDomainMessageTypeLookup
-            )
+            MessageProcessingData mpd)
         {
 
             Logger.Trace($"ProcessMessage: {message.Header}");
             var msgTypeStr = message.Header.EventType;
             var msgContent = message.Message;
-            var msgType = allDomainMessageTypeLookup[msgTypeStr];
+            var msgType = mpd.MessageTypeLookup[msgTypeStr];
             int handlerRetryCount = 3;
 
             var context = new DomainMessageProcessingContext(
@@ -34,7 +31,7 @@ namespace CarrierPidgin.ServiceA.Bus
 
             return msg2.Match(
                 e => new DeserializationError(e.Exception),
-                msg3 => ProcessMsg(msg3, msgType, context, domainMessageProcessorLookup));
+                msg3 => ProcessMsg(msg3, msgType, context, mpd.DomainMessageProcessorLookup));
         }
 
         public class Retries

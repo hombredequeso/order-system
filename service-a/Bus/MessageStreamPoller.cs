@@ -10,13 +10,11 @@ namespace CarrierPidgin.ServiceA.Bus
     public static class MessageStreamPoller
     {
         public static async Task MainInfinitePollerAsync(
-            MessageStreamState streamState, 
+            MessageStreamState streamState,
             CancellationToken ct,
             uint initialPollRateMs,
             Dictionary<HttpMessagePoller.PollingError, uint> PollingErrorPolicy,
-            Func<Type, Action<DomainMessageProcessor.DomainMessageProcessingContext, object>> domainMessageProcessorLookup,
-            Dictionary<string, Type> messageTypeLookup
-            )
+            MessageProcessingData mpd)
         {
             var streamLocation = streamState.StreamLocation;
 
@@ -46,8 +44,7 @@ namespace CarrierPidgin.ServiceA.Bus
                             pollStatus,
                             client,
                             ct,
-                            domainMessageProcessorLookup,
-                            messageTypeLookup);
+                            mpd);
                 }
             }
         }
@@ -56,9 +53,7 @@ namespace CarrierPidgin.ServiceA.Bus
             PollState ps, 
             HttpClient client, 
             CancellationToken ct,
-            Func<Type, Action<DomainMessageProcessor.DomainMessageProcessingContext, object>> domainMessageProcessorLookup,
-            Dictionary<string, Type> messageTypeLookup
-            )
+            MessageProcessingData mpd)
         {
             var transportMessage = await HttpMessagePoller.Poll(ps.NextUrl, client, ct);
             PollState pollStatus = transportMessage.Match(
@@ -68,10 +63,9 @@ namespace CarrierPidgin.ServiceA.Bus
                     return ps.WithDelayFor(error);
                 },
                 m => TransportMessageProcessor.ProcessTransportMessage(
-                    ps, 
-                    m, 
-                    domainMessageProcessorLookup,
-                    messageTypeLookup));
+                    ps,
+                    m,
+                    mpd));
 
             if (pollStatus.ShouldDelay())
                 await Task.Delay((int)pollStatus.DelayMs, ct);
