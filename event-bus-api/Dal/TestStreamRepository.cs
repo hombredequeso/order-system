@@ -43,24 +43,22 @@ namespace CarrierPidgin.EventBus.Dal
                 .Select(x =>
                 {
                     var evt = new SomethingHappenedEvent {Description = $"Event{x}"};
-                    return new DomainMessage
-                    {
-                        Message = JsonConvert.SerializeObject(
+                    return new DomainMessage(
+                        new MessageHeader(
+                            x,
+                            baseTimestamp.AddSeconds(x),
+                            SomethingHappenedEvent.DomainMessageType,
+                            null,
+                            null
+                        ),
+                        JsonConvert.SerializeObject(
                             evt,
                             Formatting.None,
                             new JsonSerializerSettings
                             {
                                 NullValueHandling = NullValueHandling.Ignore
-                            }),
-                        Header = new MessageHeader
-                        {
-                            MessageNumber = (long) x,
-                            Timestamp = baseTimestamp.AddSeconds(x),
-                            EventType = SomethingHappenedEvent.DomainMessageType,
-                            AggregateId = null,
-                            VersionNumber = null
-                        }
-                    };
+                            })
+                    );
                 })
                 .ToList();
         }
@@ -68,24 +66,22 @@ namespace CarrierPidgin.EventBus.Dal
         public static DomainMessage AddEvent(SomethingHappenedEvent e)
         {
             var lastEvent = Events.Last();
-                    var newEvent = new DomainMessage
-                        {
-                            Message = JsonConvert.SerializeObject(
+                    var newEvent = new DomainMessage(
+                            new MessageHeader(
+                                lastEvent.Header.MessageNumber + 1,
+                                DateTimeOffset.UtcNow,
+                                SomethingHappenedEvent.DomainMessageType,
+                                null,
+                                null
+                            ),
+                            JsonConvert.SerializeObject(
                                 e,
                                 Formatting.None,
                                 new JsonSerializerSettings
                                 {
                                     NullValueHandling = NullValueHandling.Ignore
-                                }),
-                            Header = new MessageHeader()
-                            {
-                                MessageNumber = lastEvent.Header.MessageNumber + 1,
-                                Timestamp = DateTimeOffset.UtcNow,
-                                EventType =  SomethingHappenedEvent.DomainMessageType,
-                                AggregateId = null,
-                                VersionNumber = null
-                            }
-                        };
+                                })
+                        );
             Events.Add(newEvent);
             return newEvent;
         }
@@ -121,14 +117,10 @@ namespace CarrierPidgin.EventBus.Dal
             List<DomainMessage> evts = Get(range);
             var links = LinkBuilder.GetLinks(TransportMessageFactory.UriBuilder, StreamName, range, evts.Count);
 
-            return new TransportMessage()
-            {
-                Messages = evts,
-                Header = new TransportHeader
-                {
-                    Links = links
-                }
-            };
+            return new TransportMessage(
+                new TransportHeader(links),
+                evts
+            );
         }
     }
 
@@ -143,26 +135,24 @@ namespace CarrierPidgin.EventBus.Dal
             var links = new List<Link>();
             var currentPage = GetPageForItem(range.Start, range.Count);
             uriBuilder.Path = $"{eventStreamName}/{range.Start},{range.End}";
-            links.Add(new Link() {Rel = new[] {Link.Self}, Href = uriBuilder.ToString()});
+            links.Add(new Link(new[] {Link.Self}, uriBuilder.ToString()));
             if (currentPage > 0)
             {
                 uriBuilder.Path = $"{eventStreamName}/{range.Start - range.Count},{range.End - range.Count}";
 
-                links.Add(new Link()
-                {
-                    Rel = new[] {Link.Previous},
-                    Href = uriBuilder.ToString()
-                });
+                links.Add(new Link(
+                   new[] {Link.Previous},
+                    uriBuilder.ToString()
+                ));
             }
             if (NextPageExists(range.Count, itemsOnCurrentPage))
             {
                 uriBuilder.Path = $"{eventStreamName}/{range.Start + range.Count},{range.End + range.Count}";
 
-                links.Add(new Link()
-                {
-                    Rel = new[] {Link.Next},
-                    Href = uriBuilder.ToString()
-                });
+                links.Add(new Link(
+                    new[] {Link.Next},
+                    uriBuilder.ToString()
+                ));
             }
             return links;
         }

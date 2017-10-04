@@ -16,7 +16,7 @@ namespace CarrierPidgin.ServiceA.Bus
         {
 
             Logger.Trace($"ProcessMessage: {message.Header}");
-            var msgTypeStr = message.Header.EventType;
+            var msgTypeStr = message.Header.MessageType;
             var msgContent = message.Message;
             var msgType = mpd.MessageTypeLookup[msgTypeStr];
             int handlerRetryCount = 3;

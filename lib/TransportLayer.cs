@@ -1,39 +1,72 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace CarrierPidgin.Lib
 {
     public class DomainMessage
     {
-        public MessageHeader Header { get; set; }
-        public string Message { get; set; }
+        public DomainMessage(MessageHeader header, string message)
+        {
+            Header = header;
+            Message = message;
+        }
+
+        public MessageHeader Header { get; }
+        public string Message { get; }
     }
 
     public class MessageHeader
     {
-        public long MessageNumber { get; set; }
-        public DateTimeOffset Timestamp { get; set; }
-        public string EventType { get; set; }
-        public string AggregateId { get; set; }
-        public long? VersionNumber { get; set; }
+        public MessageHeader(
+            long messageNumber, 
+            DateTimeOffset timestamp, 
+            string messageType, 
+            string aggregateId, 
+            long? versionNumber)
+        {
+            MessageNumber = messageNumber;
+            Timestamp = timestamp;
+            MessageType = messageType;
+            AggregateId = aggregateId;
+            VersionNumber = versionNumber;
+        }
+
+        public long MessageNumber { get; }
+        public DateTimeOffset Timestamp { get; }
+        public string MessageType { get; }
+        public string AggregateId { get; }
+        public long? VersionNumber { get; }
 
         public override string ToString()
         {
             return
-                $"EventHeader: MessageNumber={MessageNumber}; EventType={EventType}; AggregateId={AggregateId}; VersionNumber={VersionNumber}; Timestamp={Timestamp}";
+                $"EventHeader: MessageNumber={MessageNumber}; EventType={MessageType}; AggregateId={AggregateId}; VersionNumber={VersionNumber}; Timestamp={Timestamp}";
         }
     }
 
     public class TransportMessage
     {
-        public TransportHeader Header { get; set; }
-        public List<DomainMessage> Messages { get; set; }
+        public TransportMessage(TransportHeader header, List<DomainMessage> messages)
+        {
+            Header = header;
+            Messages = messages;
+        }
+
+        public TransportHeader Header { get; }
+        public List<DomainMessage> Messages { get; }
     }
 
     public class Link
     {
-        public string[] Rel { get; set; }
-        public string Href { get; set; }
+        public Link(IEnumerable<string> rel, string href)
+        {
+            Rel = rel.ToArray();
+            Href = href;
+        }
+
+        public string[] Rel { get; }
+        public string Href { get; }
 
         public static string Next = "next";
         public static string Previous = "prev";
@@ -42,6 +75,11 @@ namespace CarrierPidgin.Lib
 
     public class TransportHeader
     {
-        public List<Link> Links { get; set; }
+        public TransportHeader(IEnumerable<Link> links)
+        {
+            Links = links.ToList();
+        }
+
+        public List<Link> Links { get; }
     }
 }

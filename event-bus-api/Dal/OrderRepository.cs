@@ -34,30 +34,29 @@ namespace CarrierPidgin.EventBus.Dal
             List<DomainMessage> domainMsgs = evts
                 .Select((x,i) => ToDomainEvent(x, range.Start + (long)i))
                 .ToList();
-            return new TransportMessage()
-            {
-                Header = new TransportHeader()
-                {
-                    Links = LinkBuilder.GetLinks(TransportMessageFactory.UriBuilder, "eventstream/orderdomain/order", range, evts.Count)
-                },
-                Messages = domainMsgs
-            };
+            var headerLinks = LinkBuilder.GetLinks(
+                TransportMessageFactory.UriBuilder, 
+                "eventstream/orderdomain/order", 
+                range, 
+                evts.Count);
+            return new TransportMessage(
+                new TransportHeader(headerLinks),
+                domainMsgs
+            );
         }
 
         private static DomainMessage ToDomainEvent(EventStoreItem item, long messageNumber)
         {
-            return new DomainMessage()
-            {
-                Header = new MessageHeader()
-                {
-                    AggregateId = item.Id.ToString(),
-                    MessageNumber = messageNumber,
-                    Timestamp = item.Timestamp.ToUniversalTime(),
-                    EventType = item.MessageType,
-                    VersionNumber = (long)item.Version
-                },
-                Message = item.SerializedMessage
-            };
+            return new DomainMessage(
+                new MessageHeader(
+                    messageNumber,
+                    item.Timestamp.ToUniversalTime(),
+                    item.MessageType,
+                    item.Id.ToString(),
+                    item.Version
+                ),
+                item.SerializedMessage
+            );
         }
     }
 }
