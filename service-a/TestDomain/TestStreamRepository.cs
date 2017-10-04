@@ -12,11 +12,10 @@ namespace CarrierPidgin.ServiceA.TestDomain
                 new MessageStream(
                     "teststream", 
                     MessageStream.NoMessagesProcessed, 
-                    "TestStream #1",
+                    new MessageStreamName("TestStream #1"),
                     PollingPolicy.DefaultDelayMs,
                     PollingPolicy.DefaultPollingErrorPolicy)
             };
         }
-        
     }
 }

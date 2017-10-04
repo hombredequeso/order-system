@@ -30,12 +30,11 @@ namespace CarrierPidgin.ServiceA.Bus
 
                 while (!ct.IsCancellationRequested)
                 {
-                    var messageStreamName = new MessageStreamName(streamState.Description);
                     var pollStatus = new PollState(
                         startUrl, 
                         initialPollRateMs, 
                         streamState.LastSuccessfullyProcessedMessage,
-                        messageStreamName,
+                        streamState.StreamName,
                         PollingErrorPolicy,
                         initialPollRateMs);
 

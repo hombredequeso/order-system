@@ -48,11 +48,11 @@ namespace CarrierPidgin.ServiceA
 
             foreach (var messageStream in messageStreams)
             {
-                var streamLocation = ServiceLocator.GetMessageStreamLocation(messageStream.Name);
+                var streamLocation = ServiceLocator.GetMessageStreamLocation(messageStream.Path);
                 var messageStreamState = new MessageStreamState(
                     streamLocation,
                     messageStream.LastSuccessfullyProcessedMessage,
-                    messageStream.Description);
+                    messageStream.Name);
 
                 MessageStreamPoller.MainInfinitePollerAsync(
                     messageStreamState,

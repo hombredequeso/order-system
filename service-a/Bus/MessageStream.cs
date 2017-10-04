@@ -5,21 +5,21 @@ namespace CarrierPidgin.ServiceA.Bus
     public class MessageStream
     {
         public MessageStream(
-            string name, 
+            string path, 
             long lastSuccessfullyProcessedMessage, 
-            string description,
+            MessageStreamName name,
             uint defaultPollingDelayMs,
             Dictionary<HttpMessagePoller.PollingError, uint> pollingErrorPolicy)
         {
-            Name = name;
+            Path = path;
             LastSuccessfullyProcessedMessage = lastSuccessfullyProcessedMessage;
-            Description = description;
+            Name = name;
             DefaultDelayMs = defaultPollingDelayMs;
             PollingErrorPolicy = pollingErrorPolicy;
         }
 
-        public string Description { get; set; }
-        public string Name { get; set; }
+        public MessageStreamName Name { get; set; }
+        public string Path { get; set; }
         public long LastSuccessfullyProcessedMessage { get; set; }
 
         public Dictionary<HttpMessagePoller.PollingError, uint> PollingErrorPolicy { get; set; }

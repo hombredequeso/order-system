@@ -5,15 +5,15 @@
         public MessageStreamState(
             MessageStreamLocation streamLocation, 
             long lastSuccessfullyProcessedMessage,
-            string description)
+            MessageStreamName streamName)
         {
             StreamLocation = streamLocation;
             LastSuccessfullyProcessedMessage = lastSuccessfullyProcessedMessage;
-            Description = description;
+            StreamName = streamName;
         }
 
         public MessageStreamLocation StreamLocation { get; }
         public long LastSuccessfullyProcessedMessage { get; }
-        public string Description { get; }
+        public MessageStreamName StreamName { get; }
     }
 }

@@ -9,10 +9,10 @@ namespace CarrierPidgin.OrderService.Messages
     {
         public static List<MessageStream> Get(UnitOfWork uow)
         {
-            var messageStreamName = "orderdomain/order stream #1";
+            var messageStreamName = new MessageStreamName("orderdomain/order stream #1");
             var lastMessageProcessed = MessageNumberRepository.GetLastProcessedMessageNumber(
                 uow,
-                new MessageStreamName(messageStreamName));
+                messageStreamName);
 
             var lmp = lastMessageProcessed.Match(x => x.Item1, () => MessageStream.NoMessagesProcessed);
 
@@ -21,7 +21,7 @@ namespace CarrierPidgin.OrderService.Messages
                 new MessageStream(
                     "eventstream/orderdomain/order/0,9", 
                     lmp,
-                    "orderdomain/order stream #1",
+                    messageStreamName,
                     PollingPolicy.DefaultDelayMs * 5,
                     PollingPolicy.DefaultPollingErrorPolicy)
             };
