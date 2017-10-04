@@ -2,10 +2,11 @@ using System;
 using CarrierPidgin.Lib;
 using CarrierPidgin.OrderService.Messages;
 using CarrierPidgin.ServiceA.Dal;
+using CarrierPidgin.ServiceA.Entities;
 using Optional;
 using Optional.Linq;
 
-namespace CarrierPidgin.ServiceA.Statistics
+namespace CarrierPidgin.ServiceA.Handlers
 {
     public class UpdateTotalOrderCountWhenOrderPlacedHandler
     {

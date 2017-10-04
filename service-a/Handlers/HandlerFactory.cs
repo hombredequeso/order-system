@@ -3,7 +3,7 @@ using CarrierPidgin.Lib;
 using CarrierPidgin.OrderService.Messages;
 using CarrierPidgin.ServiceA.Bus;
 
-namespace CarrierPidgin.ServiceA.Statistics
+namespace CarrierPidgin.ServiceA.Handlers
 {
     public static class HandlerFactory
     {

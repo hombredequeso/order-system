@@ -3,9 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using CarrierPidgin.OrderService.Messages;
 using NLog;
-using Npgsql;
 
-namespace CarrierPidgin.ServiceA.Statistics
+namespace CarrierPidgin.ServiceA.Handlers
 {
     public static class OrderStatisticsModule
     {

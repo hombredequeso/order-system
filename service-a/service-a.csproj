@@ -69,8 +69,8 @@
     <Compile Include="..\lib\OrderEvents.cs">
       <Link>OrderDomain\OrderEvents.cs</Link>
     </Compile>
-    <Compile Include="..\lib\TestServiceMessages.cs">
-      <Link>TestDomain\TestServiceMessages.cs</Link>
+    <Compile Include="..\lib\TestMessages.cs">
+      <Link>TestDomain\TestMessages.cs</Link>
     </Compile>
     <Compile Include="..\lib\TransportLayer.cs">
       <Link>Bus\TransportLayer.cs</Link>
@@ -89,23 +89,23 @@
     <Compile Include="Bus\MessageStreamState.cs" />
     <Compile Include="Bus\MessageTransform.cs" />
     <Compile Include="HandlerFactory.cs" />
-    <Compile Include="OrderDomain\OrderStreamRepository.cs" />
-    <Compile Include="Statistics\AddToStatsWhenOrderPlacedHandler.cs" />
+    <Compile Include="OrderChannels\OrderStreamRepository.cs" />
+    <Compile Include="Handlers\AddToStatsWhenOrderPlacedHandler.cs" />
     <Compile Include="Bus\MessageStream.cs" />
     <Compile Include="Bus\HttpMessagePoller.cs" />
     <Compile Include="Bus\PollState.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Bus\ServiceLocator.cs" />
-    <Compile Include="Statistics\Dal\Database.cs" />
-    <Compile Include="Statistics\DeDupHandler.cs" />
-    <Compile Include="Statistics\HandlerFactory.cs" />
-    <Compile Include="Statistics\OrderStatistics.cs" />
-    <Compile Include="Statistics\TransactionHandler.cs" />
-    <Compile Include="Statistics\UpdateTotalOrderCountWhenOrderPlacedHandler.cs" />
+    <Compile Include="Dal\Database.cs" />
+    <Compile Include="Handlers\DeDupHandler.cs" />
+    <Compile Include="Handlers\HandlerFactory.cs" />
+    <Compile Include="Entities\OrderStatistics.cs" />
+    <Compile Include="Handlers\TransactionHandler.cs" />
+    <Compile Include="Handlers\UpdateTotalOrderCountWhenOrderPlacedHandler.cs" />
     <Compile Include="Bus\TransportMessageProcessor.cs" />
-    <Compile Include="TestDomain\TestStreamRepository.cs" />
-    <Compile Include="TestDomain\WidgetizeWhenSomethingHappenedEventHandler.cs" />
+    <Compile Include="TestChannels\TestStreamRepository.cs" />
+    <Compile Include="Handlers\WidgetizeWhenSomethingHappenedEventHandler.cs" />
     <Compile Include="MessageStreamRepository.cs" />
   </ItemGroup>
   <ItemGroup>

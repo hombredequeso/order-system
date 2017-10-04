@@ -2,9 +2,8 @@
 using System.Collections.Generic;
 using System.Threading;
 using CarrierPidgin.Lib;
-using CarrierPidgin.OrderService.Messages;
 using CarrierPidgin.ServiceA.Bus;
-using CarrierPidgin.TestService.Events;
+using CarrierPidgin.ServiceA.Dal;
 using NLog;
 
 namespace CarrierPidgin.ServiceA
@@ -13,19 +12,12 @@ namespace CarrierPidgin.ServiceA
     {
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
 
-
-        private static Dictionary<string, Type> GetDomainMessageTypeLookup()
+        private static List<MessageStream> GetMessageStreams()
         {
-            var allDomainMessageTypeLookup = new Dictionary<string, Type>();
-            foreach (var keyValuePair in SomethingHappenedEvent.MessageTypeLookup)
+            using (var statisticsUow = new UnitOfWork(Database.ConnectionString))
             {
-                allDomainMessageTypeLookup.Add(keyValuePair.Key, keyValuePair.Value);
+                return MessageStreamRepository.GetAllMessageStreams(statisticsUow);
             }
-            foreach (var kvp in OrderEvents.OrderEventType)
-            {
-                allDomainMessageTypeLookup.Add(kvp.Value, kvp.Key);
-            }
-            return allDomainMessageTypeLookup;
         }
 
         private static void Main(string[] args)
@@ -34,17 +26,11 @@ namespace CarrierPidgin.ServiceA
             var cts = new CancellationTokenSource();
             var ct = cts.Token;
 
-            List<MessageStream> messageStreams;
-            using (var uow = new UnitOfWork(Statistics.Dal.Database.ConnectionString))
-            {
-                messageStreams = MessageStreamRepository.Get(uow);
-            }
-
+            List<MessageStream> messageStreams = GetMessageStreams();
             var messageProcessingData = new MessageProcessingData(
-                    GetDomainMessageTypeLookup(),
+                    MessageStreamRepository.GetMessageTypeLookup(),
                     HandlerFactory.GetHandlerForMessageType
                 );
-
 
             foreach (var messageStream in messageStreams)
             {

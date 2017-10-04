@@ -1,4 +1,4 @@
-﻿namespace CarrierPidgin.ServiceA.Statistics.Dal
+﻿namespace CarrierPidgin.ServiceA.Dal
 {
     public static class Database
     {

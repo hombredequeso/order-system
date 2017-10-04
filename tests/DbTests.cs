@@ -1,7 +1,7 @@
 ﻿using System;
 using CarrierPidgin.Lib;
 using CarrierPidgin.ServiceA.Dal;
-using CarrierPidgin.ServiceA.Statistics;
+using CarrierPidgin.ServiceA.Entities;
 using NUnit.Framework;
 using Optional;
 using Optional.Linq;

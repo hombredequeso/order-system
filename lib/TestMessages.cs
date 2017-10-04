@@ -9,9 +9,13 @@ namespace CarrierPidgin.TestService.Events
 
         public static  string DomainMessageType => "V1.SomethingHappenedEvent";
 
-        public static Dictionary<string, Type> MessageTypeLookup = new Dictionary<string, Type>()
+    }
+
+    public static class TestEvents
+    {
+        public static Dictionary<Type, string> MessageTypeLookup = new Dictionary<Type, string>()
         {
-            {SomethingHappenedEvent.DomainMessageType, typeof(SomethingHappenedEvent) }
+            {typeof(SomethingHappenedEvent), SomethingHappenedEvent.DomainMessageType }
         };
     }
 }

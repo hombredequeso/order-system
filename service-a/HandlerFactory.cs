@@ -1,7 +1,7 @@
 using System;
 using CarrierPidgin.OrderService.Messages;
 using CarrierPidgin.ServiceA.Bus;
-using CarrierPidgin.ServiceA.TestDomain;
+using CarrierPidgin.ServiceA.Handlers;
 using CarrierPidgin.TestService.Events;
 
 namespace CarrierPidgin.ServiceA
@@ -14,7 +14,7 @@ namespace CarrierPidgin.ServiceA
             if (messageType == typeof(SomethingHappenedEvent))
                 return (c,m) => new WidgetizeWhenSomethingHappenedEventHandler().Handle((SomethingHappenedEvent) m);
             if (messageType == typeof(OrderPlacedEvent))
-                return (c, m) => Statistics.HandlerFactory.GetOrderPlacedHandler()(c, (OrderPlacedEvent) m);
+                return (c, m) => Handlers.HandlerFactory.GetOrderPlacedHandler()(c, (OrderPlacedEvent) m);
             return (c,m) => { };
         }
     }

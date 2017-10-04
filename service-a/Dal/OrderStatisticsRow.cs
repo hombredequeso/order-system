@@ -1,5 +1,5 @@
 ﻿using System;
-using CarrierPidgin.ServiceA.Statistics;
+using CarrierPidgin.ServiceA.Entities;
 
 namespace CarrierPidgin.ServiceA.Dal
 {

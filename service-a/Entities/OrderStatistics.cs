@@ -1,4 +1,4 @@
-namespace CarrierPidgin.ServiceA.Statistics
+namespace CarrierPidgin.ServiceA.Entities
 {
     public class OrderStatistics
     {

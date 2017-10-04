@@ -2,7 +2,7 @@
 using CarrierPidgin.Lib;
 using CarrierPidgin.ServiceA;
 using CarrierPidgin.ServiceA.Bus;
-using CarrierPidgin.ServiceA.Statistics;
+using CarrierPidgin.ServiceA.Handlers;
 using FluentAssertions;
 using NUnit.Framework;
 using Optional;

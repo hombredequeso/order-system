@@ -6,7 +6,7 @@ using Dapper;
 using Optional;
 using Optional.Linq;
 
-namespace CarrierPidgin.ServiceA.Statistics
+namespace CarrierPidgin.ServiceA.Handlers
 {
     public class MessageQueueProcessingDetailsRow
     {

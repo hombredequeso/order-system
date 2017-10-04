@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using CarrierPidgin.Lib;
-using CarrierPidgin.ServiceA.Statistics;
+using CarrierPidgin.ServiceA.Entities;
 using Dapper;
 using Optional;
 

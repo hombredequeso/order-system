@@ -31,7 +31,7 @@ namespace CarrierPidgin.OrderService.Dal
         private static EventStoreItem ToEventStoreItem(IOrderEvent e, DateTimeOffset timestamp)
         {
             var serializedEvent = JsonConvert.SerializeObject(e);
-            var eventType = OrderEvents.OrderEventType[e.GetType()];
+            var eventType = OrderEvents.MessageTypeLookup[e.GetType()];
             
             return new EventStoreItem()
             {
@@ -60,7 +60,7 @@ namespace CarrierPidgin.OrderService.Dal
 
         private static IOrderEvent GetEvent(EventStoreItem dbItem)
         {
-            Type type = OrderEvents.OrderEventType.Single(x => x.Value == dbItem.MessageType).Key;
+            Type type = OrderEvents.MessageTypeLookup.Single(x => x.Value == dbItem.MessageType).Key;
             var deserializedMessage = JsonConvert.DeserializeObject(dbItem.SerializedMessage, type);
             return (IOrderEvent) deserializedMessage;
         }

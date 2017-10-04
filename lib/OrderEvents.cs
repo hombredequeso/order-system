@@ -49,7 +49,7 @@ namespace CarrierPidgin.OrderService.Messages
 
     public static class OrderEvents
     {
-        public static IDictionary<Type, string> OrderEventType = new Dictionary<Type, string>()
+        public static IDictionary<Type, string> MessageTypeLookup = new Dictionary<Type, string>()
         {
             {typeof(OrderPlacedEvent) , "Product.OrderService.OrderPlacedEvent"},
             {typeof(OrderCancelledEvent) , "Product.OrderService.OrderCancelledEvent"},

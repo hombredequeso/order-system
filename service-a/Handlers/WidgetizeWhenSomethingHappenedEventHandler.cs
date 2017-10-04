@@ -2,7 +2,7 @@
 using CarrierPidgin.TestService.Events;
 using NLog;
 
-namespace CarrierPidgin.ServiceA.TestDomain
+namespace CarrierPidgin.ServiceA.Handlers
 {
     public class DummyHandlerException: Exception {
         public DummyHandlerException(string failureMessage)

@@ -1,13 +1,13 @@
 ﻿using System.Collections.Generic;
 using CarrierPidgin.Lib;
 using CarrierPidgin.ServiceA.Bus;
-using CarrierPidgin.ServiceA.Statistics;
+using CarrierPidgin.ServiceA.Handlers;
 
-namespace CarrierPidgin.OrderService.Messages
+namespace CarrierPidgin.ServiceA.OrderChannels
 {
     public static class OrderStreamRepository
     {
-        public static List<MessageStream> Get(UnitOfWork uow)
+        public static List<MessageStream> GetAll(UnitOfWork uow)
         {
             var messageStreamName = new MessageStreamName("orderdomain/order stream #1");
             var lastMessageProcessed = MessageNumberRepository.GetLastProcessedMessageNumber(
@@ -18,12 +18,11 @@ namespace CarrierPidgin.OrderService.Messages
 
             return new List<MessageStream>()
             {
-                new MessageStream(
-                    "eventstream/orderdomain/order/0,9", 
-                    lmp,
-                    messageStreamName,
-                    PollingPolicy.DefaultDelayMs * 5,
-                    PollingPolicy.DefaultPollingErrorPolicy)
+                new MessageStream(messageStreamName,
+                "eventstream/orderdomain/order/0,9",
+                lmp, 
+                PollingPolicy.DefaultDelayMs * 5, 
+                PollingPolicy.DefaultPollingErrorPolicy)
             };
         }
         
