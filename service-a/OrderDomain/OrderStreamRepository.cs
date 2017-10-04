@@ -9,7 +9,7 @@ namespace CarrierPidgin.OrderService.Messages
     {
         public static List<MessageStream> Get(UnitOfWork uow)
         {
-            var messageStreamName = "eventstream/orderdomain/order/0,9";
+            var messageStreamName = "orderdomain/order stream #1";
             var lastMessageProcessed = MessageNumberRepository.GetLastProcessedMessageNumber(
                 uow,
                 new MessageStreamName(messageStreamName));
