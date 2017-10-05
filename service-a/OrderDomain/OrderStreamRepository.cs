@@ -3,7 +3,7 @@ using CarrierPidgin.Lib;
 using CarrierPidgin.ServiceA.Bus;
 using CarrierPidgin.ServiceA.Handlers;
 
-namespace CarrierPidgin.ServiceA.OrderChannels
+namespace CarrierPidgin.ServiceA.OrderDomain
 {
     public static class OrderStreamRepository
     {

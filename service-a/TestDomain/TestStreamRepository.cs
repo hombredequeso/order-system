@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using CarrierPidgin.ServiceA.Bus;
 
-namespace CarrierPidgin.ServiceA.TestChannels
+namespace CarrierPidgin.ServiceA.TestDomain
 {
     public static class TestStreamRepository
     {

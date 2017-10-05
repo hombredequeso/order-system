@@ -4,8 +4,8 @@ using System.Linq;
 using CarrierPidgin.Lib;
 using CarrierPidgin.OrderService.Messages;
 using CarrierPidgin.ServiceA.Bus;
-using CarrierPidgin.ServiceA.OrderChannels;
-using CarrierPidgin.ServiceA.TestChannels;
+using CarrierPidgin.ServiceA.OrderDomain;
+using CarrierPidgin.ServiceA.TestDomain;
 using CarrierPidgin.TestService.Events;
 
 namespace CarrierPidgin.ServiceA

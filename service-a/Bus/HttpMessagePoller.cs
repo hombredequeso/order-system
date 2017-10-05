@@ -20,7 +20,10 @@ namespace CarrierPidgin.ServiceA.Bus
             UnknownErrorOnGet
         }
 
-        public static async Task<Either<PollingError, TransportMessage>> Poll(string path, HttpClient httpClient, CancellationToken ct)
+        public static async Task<Either<PollingError, TransportMessage>> Poll(
+            string path, 
+            HttpClient httpClient, 
+            CancellationToken ct)
         {
             Logger.Trace($"HttpMessagePoller.Poll GET {path}");
             try
