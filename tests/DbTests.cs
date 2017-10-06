@@ -13,7 +13,6 @@ namespace tests
     {
         public static string domain = "statistics";
 
-
         [Test]
         public void Can_Insert_OrderStatistics_Row()
         {

@@ -4,6 +4,7 @@ using System.Threading;
 using CarrierPidgin.Lib;
 using CarrierPidgin.ServiceA.Bus;
 using CarrierPidgin.ServiceA.Dal;
+using Hdq.Lib;
 using NLog;
 
 namespace CarrierPidgin.ServiceA
@@ -40,12 +41,16 @@ namespace CarrierPidgin.ServiceA
                     messageStream.LastSuccessfullyProcessedMessage,
                     messageStream.Name);
 
+                var uriBuilder = new UriBuilder(streamLocation.Scheme, streamLocation.Host, streamLocation.Port);
+                IHttpService ServiceCreator() => new HttpService(uriBuilder.Uri);
+
                 MessageStreamPoller.MainInfinitePollerAsync(
                     messageStreamState,
                     ct,
                     messageStream.DefaultDelayMs,
                     messageStream.PollingErrorPolicy,
-                    messageProcessingData);
+                    messageProcessingData,
+                    ServiceCreator);
             }
 
             Console.WriteLine("press enter to stop");

@@ -89,6 +89,7 @@
     <Compile Include="Bus\MessageStreamState.cs" />
     <Compile Include="Bus\MessageTransform.cs" />
     <Compile Include="HandlerFactory.cs" />
+    <Compile Include="Lib\HttpService.cs" />
     <Compile Include="OrderDomain\OrderStreamRepository.cs" />
     <Compile Include="Handlers\AddToStatsWhenOrderPlacedHandler.cs" />
     <Compile Include="Bus\MessageStream.cs" />

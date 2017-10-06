@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Net.Http;
-using System.Net.Http.Headers;
 using System.Threading;
 using System.Threading.Tasks;
+using CarrierPidgin.Lib;
+using Hdq.Lib;
 
 namespace CarrierPidgin.ServiceA.Bus
 {
@@ -13,48 +13,50 @@ namespace CarrierPidgin.ServiceA.Bus
             MessageStreamState streamState,
             CancellationToken ct,
             uint initialPollRateMs,
-            Dictionary<HttpMessagePoller.PollingError, uint> PollingErrorPolicy,
-            MessageProcessingData mpd)
+            Dictionary<HttpMessagePoller.PollingError, uint> pollingErrorPolicy,
+            MessageProcessingData mpd,
+            Func<IHttpService> httpServiceCreator)
         {
-            var streamLocation = streamState.StreamLocation;
 
-            using (HttpClient client = new HttpClient())
+            using (IHttpService client = httpServiceCreator())
             {
-                var uriBuilder = new UriBuilder(streamLocation.Scheme, streamLocation.Host, streamLocation.Port);
-                client.BaseAddress = uriBuilder.Uri;
-                client.DefaultRequestHeaders.Accept.Clear();
-                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-
-                uriBuilder.Path = streamLocation.Path;
-                var startUrl = uriBuilder.ToString();
-
                 while (!ct.IsCancellationRequested)
                 {
+                    var streamLocation = streamState.StreamLocation;
+                    var uriBuilder = new UriBuilder(streamLocation.Scheme, streamLocation.Host, streamLocation.Port);
+                    uriBuilder.Path = streamLocation.Path;
+                    var startUrl = uriBuilder.ToString();
+
                     var pollStatus = new PollState(
                         startUrl, 
-                        initialPollRateMs, 
+                        0, 
                         streamState.LastSuccessfullyProcessedMessage,
                         streamState.StreamName,
-                        PollingErrorPolicy,
+                        pollingErrorPolicy,
                         initialPollRateMs);
 
                     while (pollStatus.CanPoll())
+                    {
+                        if (pollStatus.ShouldDelay())
+                            await Task.Delay((int) pollStatus.DelayMs, ct);
+
                         pollStatus = await Execute(
                             pollStatus,
                             client,
                             ct,
                             mpd);
+                    }
                 }
             }
         }
 
         public static async Task<PollState> Execute(
             PollState ps, 
-            HttpClient client, 
+            IHttpService client, 
             CancellationToken ct,
             MessageProcessingData mpd)
         {
-            var transportMessage = await HttpMessagePoller.Poll(ps.NextUrl, client, ct);
+            Either<HttpMessagePoller.PollingError, TransportMessage> transportMessage = await HttpMessagePoller.Poll(ps.NextUrl, client, ct);
             PollState pollStatus = transportMessage.Match(
                 error =>
                 {
@@ -65,9 +67,6 @@ namespace CarrierPidgin.ServiceA.Bus
                     ps,
                     m,
                     mpd));
-
-            if (pollStatus.ShouldDelay())
-                await Task.Delay((int)pollStatus.DelayMs, ct);
 
             return pollStatus;
         }

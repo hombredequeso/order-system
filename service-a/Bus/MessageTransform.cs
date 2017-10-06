@@ -57,15 +57,5 @@ namespace CarrierPidgin.ServiceA.Bus
 
             public Exception Exception { get; }
         }
-
-        public class HttpError
-        {
-            public HttpError(HttpStatusCode httpErrorCode)
-            {
-                HttpErrorCode = httpErrorCode;
-            }
-
-            public HttpStatusCode HttpErrorCode { get; }
-        }
     }
 }
