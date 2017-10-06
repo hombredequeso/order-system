@@ -71,6 +71,9 @@
     <Compile Include="TestConfig.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="http-responses\sample.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>

@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
@@ -87,5 +89,56 @@ namespace tests
             Assert.NotNull(newPollStateTask);
             Assert.AreEqual(httpErrorDelay, newPollStateTask.DelayMs);
         }
+
+        [Test]
+        public void Read_Json()
+        {
+
+            var d = TestContext.CurrentContext.TestDirectory;
+            Console.WriteLine(d);
+            var loc = Path.Combine(d, "http-responses\\sample.json");
+            Console.WriteLine(loc);
+
+            var content = File.ReadAllText(loc);
+            Console.Write(content);
+        }
+
+        [Test]
+        public async Task Polling_From_Start_Works()
+        {
+            // Given:
+            uint httpErrorDelay = 12345;
+            var pollingPolicy = PollingPolicy.DefaultPollingErrorPolicy;
+            pollingPolicy[HttpMessagePoller.PollingError.ErrorMakingHttpRequest] = httpErrorDelay;
+
+
+            var loc = Path.Combine(
+                TestContext.CurrentContext.TestDirectory, 
+                "http-responses\\sample.json");
+            var content = File.ReadAllText(loc);
+            var testResponses = new List<Either<HttpError, string>>()
+            {
+                new Either<HttpError, string>(content)
+            };
+
+            var initialPollState = BasicInitialPollState(pollingPolicy);
+            var mpd = new MessageProcessingData(
+                new Dictionary<string, Type>{{TestMessage.MessageName, typeof(TestMessage)}}, 
+                GetHandlerForMessageType);
+
+            // When:
+            PollState newPollStateTask = await MessageStreamPoller.Execute(
+                initialPollState, 
+                new TestHttpService(testResponses), 
+                new CancellationToken(), 
+                mpd);
+
+            // Then
+            //Assert.AreEqual(httpErrorDelay, newPollStateTask.DelayMs);
+            Assert.AreEqual(4, TestMessageHandler.Counter);
+        }
+
     }
+
+
 }
