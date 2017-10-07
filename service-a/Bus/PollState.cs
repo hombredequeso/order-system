@@ -5,12 +5,12 @@ namespace CarrierPidgin.ServiceA.Bus
     public class PollState
     {
         public PollState(
-            string nextUrl,
-            uint delayMs,
-            long lastMessageSuccessfullyProcessed,
-            MessageStreamName messageStreamName,
-            Dictionary<HttpMessagePoller.PollingError, uint> pollingErrorDelayPolicy,
-            uint defaultDelayMs)
+            MessageStreamName messageStreamName, 
+            uint defaultDelayMs, 
+            Dictionary<HttpMessagePoller.PollingError, uint> pollingErrorDelayPolicy, 
+            long lastMessageSuccessfullyProcessed, 
+            string nextUrl, 
+            uint delayMs)
         {
             NextUrl = nextUrl;
             DelayMs = delayMs;
@@ -43,23 +43,23 @@ namespace CarrierPidgin.ServiceA.Bus
         public PollState WithDelayFor(HttpMessagePoller.PollingError error)
         {
             return new PollState(
-                this.NextUrl, 
-                this.PollingErrorDelayPolicy[error], 
-                this.LastMessageSuccessfullyProcessed,
-                this.MessageStreamName,
-                this.PollingErrorDelayPolicy,
-                this.DefaultDelayMs);
+                MessageStreamName,
+                DefaultDelayMs, 
+                PollingErrorDelayPolicy, 
+                LastMessageSuccessfullyProcessed, 
+                NextUrl, 
+                PollingErrorDelayPolicy[error]);
         }
 
         public PollState WithDelay(uint newDelay)
         {
             return new PollState(
-                this.NextUrl, 
-                newDelay, 
-                this.LastMessageSuccessfullyProcessed,
-                this.MessageStreamName,
-                this.PollingErrorDelayPolicy,
-                this.DefaultDelayMs);
+                MessageStreamName,
+                DefaultDelayMs, 
+                PollingErrorDelayPolicy, 
+                LastMessageSuccessfullyProcessed, 
+                NextUrl, 
+                newDelay);
 
         }
         public PollState With(
@@ -68,12 +68,12 @@ namespace CarrierPidgin.ServiceA.Bus
             long? lastMessage = null)
         {
             return new PollState(
-                nextUrl ?? this.NextUrl,
-                delayMs ?? this.DelayMs,
-                lastMessage ?? this.LastMessageSuccessfullyProcessed,
-                this.MessageStreamName,
-                this.PollingErrorDelayPolicy,
-                this.DefaultDelayMs);
+                MessageStreamName,
+                DefaultDelayMs, 
+                PollingErrorDelayPolicy, 
+                lastMessage ?? LastMessageSuccessfullyProcessed, 
+                nextUrl ?? NextUrl, 
+                delayMs ?? DelayMs);
         }
     }
 }

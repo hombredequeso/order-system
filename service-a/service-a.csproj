@@ -79,7 +79,6 @@
       <Link>Dal\UnitOfWork.cs</Link>
     </Compile>
     <Compile Include="Bus\DeserializeError.cs" />
-    <Compile Include="Bus\MessageProcessingData.cs" />
     <Compile Include="Bus\MessageStreamPoller.cs" />
     <Compile Include="Bus\PollingPolicy.cs" />
     <Compile Include="Dal\OrderStatisticsRepository.cs" />

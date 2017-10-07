@@ -1,12 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using CarrierPidgin.Lib;
-using CarrierPidgin.ServiceA;
 using CarrierPidgin.ServiceA.Bus;
 using Hdq.Lib;
 using NUnit.Framework;
@@ -36,13 +34,6 @@ namespace tests
     [TestFixture]
     public class PollTests
     {
-        
-        // public static async Task<PollState> Execute(
-        //     PollState ps, 
-        //     IHttpService client, 
-        //     CancellationToken ct,
-        //     MessageProcessingData mpd)
-
         public static Action<DomainMessageProcessor.DomainMessageProcessingContext, object> GetHandlerForMessageType(
             Type messageType)
         {
@@ -54,13 +45,8 @@ namespace tests
         public static PollState BasicInitialPollState(
             Dictionary<HttpMessagePoller.PollingError, uint> pollingPolicy)
         {
-            return new PollState(
-                "/next/url", 
-                0,
-                MessageStream.NoMessagesProcessed, 
-                new MessageStreamName("testStream"),
-                pollingPolicy ?? PollingPolicy.DefaultPollingErrorPolicy,
-                PollingPolicy.DefaultDelayMs);
+            return new PollState(new MessageStreamName("testStream"),
+                PollingPolicy.DefaultDelayMs, pollingPolicy ?? PollingPolicy.DefaultPollingErrorPolicy, MessageStream.NoMessagesProcessed, "/next/url", 0);
         }
 
         [Test]
@@ -79,16 +65,14 @@ namespace tests
                 MessageTransform.DeserializeTransportMessage(s,
                     new Dictionary<string, Type> {{TestMessage.MessageName, typeof(TestMessage)}});
             var initialPollState = BasicInitialPollState(pollingPolicy);
-            var mpd = new MessageProcessingData(
-                GetHandlerForMessageType,
-               deserializeTransportMessage );
 
             // When:
             PollState newPollStateTask = await MessageStreamPoller.Execute(
                 initialPollState, 
                 new TestHttpService(testResponses), 
                 new CancellationToken(), 
-                mpd);
+                GetHandlerForMessageType,
+               deserializeTransportMessage );
 
             // Then
             Assert.NotNull(newPollStateTask);
@@ -133,16 +117,13 @@ namespace tests
                     s, 
                     new Dictionary<string, Type> {{TestMessage.MessageName, typeof(TestMessage)}});
 
-            var mpd = new MessageProcessingData(
-                GetHandlerForMessageType,
-                DeserializeTransportMessage);
-
             // When:
             PollState newPollStateTask = await MessageStreamPoller.Execute(
                 initialPollState, 
                 new TestHttpService(testResponses), 
                 new CancellationToken(), 
-                mpd);
+                GetHandlerForMessageType,
+               DeserializeTransportMessage );
 
             // Then
             //Assert.AreEqual(httpErrorDelay, newPollStateTask.DelayMs);

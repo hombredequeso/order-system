@@ -14,7 +14,7 @@ namespace CarrierPidgin.ServiceA.Bus
         public static IProcessMessageResult ProcessMessage(
             DomainMessage message,
             MessageStreamName queueName,
-            MessageProcessingData mpd)
+            Func<Type, Action<DomainMessageProcessingContext, object>> processors)
         {
             Logger.Trace($"ProcessMessage: {message.Header}");
 
@@ -28,7 +28,7 @@ namespace CarrierPidgin.ServiceA.Bus
                 new Either<DeserializeError, object>(message.Message);
             return msg2.Match(
                 e => new DeserializationError(e.Exception),
-                msg3 => ProcessMsg(msg3, context, mpd.DomainMessageProcessorLookup));
+                msg3 => ProcessMsg(msg3, context, processors));
         }
 
         public class Retries

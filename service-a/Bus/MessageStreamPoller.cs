@@ -10,12 +10,13 @@ namespace CarrierPidgin.ServiceA.Bus
     public static class MessageStreamPoller
     {
         public static async Task MainInfinitePollerAsync(
-            MessageStreamState streamState,
-            CancellationToken ct,
-            uint initialPollRateMs,
-            Dictionary<HttpMessagePoller.PollingError, uint> pollingErrorPolicy,
-            MessageProcessingData mpd,
-            Func<IHttpService> httpServiceCreator)
+            MessageStreamState streamState, 
+            Func<Type, Action<DomainMessageProcessor.DomainMessageProcessingContext, object>> domainMessageProcessors,
+            Func<string, Either<DeserializeError, TransportMessage>> deserializeTransportMessage,
+            uint streamPollRateMs, 
+            Dictionary<HttpMessagePoller.PollingError, uint> pollingErrorPolicy, 
+            Func<IHttpService> httpServiceCreator, 
+            CancellationToken ct)
         {
 
             using (IHttpService client = httpServiceCreator())
@@ -23,17 +24,16 @@ namespace CarrierPidgin.ServiceA.Bus
                 while (!ct.IsCancellationRequested)
                 {
                     var streamLocation = streamState.StreamLocation;
-                    var uriBuilder = new UriBuilder(streamLocation.Scheme, streamLocation.Host, streamLocation.Port);
-                    uriBuilder.Path = streamLocation.Path;
+                    var uriBuilder = new UriBuilder(
+                            streamLocation.Scheme,
+                            streamLocation.Host,
+                            streamLocation.Port)
+                        {Path = streamLocation.Path};
+
                     var startUrl = uriBuilder.ToString();
 
-                    var pollStatus = new PollState(
-                        startUrl, 
-                        0, 
-                        streamState.LastSuccessfullyProcessedMessage,
-                        streamState.StreamName,
-                        pollingErrorPolicy,
-                        initialPollRateMs);
+                    var pollStatus = new PollState(streamState.StreamName,
+                        streamPollRateMs, pollingErrorPolicy, streamState.LastSuccessfullyProcessedMessage, startUrl, 0);
 
                     while (pollStatus.CanPoll())
                     {
@@ -44,7 +44,8 @@ namespace CarrierPidgin.ServiceA.Bus
                             pollStatus,
                             client,
                             ct,
-                            mpd);
+                            domainMessageProcessors,
+                            deserializeTransportMessage);
                     }
                 }
             }
@@ -54,10 +55,11 @@ namespace CarrierPidgin.ServiceA.Bus
             PollState ps, 
             IHttpService client, 
             CancellationToken ct,
-            MessageProcessingData mpd)
+            Func<Type, Action<DomainMessageProcessor.DomainMessageProcessingContext, object>> domainMessageProcessors,
+            Func<string, Either<DeserializeError, TransportMessage>> deserializeTransportMessage)
         {
             Either<HttpMessagePoller.PollingError, TransportMessage> transportMessage = 
-                await HttpMessagePoller.Poll(ps.NextUrl, client, ct, mpd.DeserializeTransportMessage);
+                await HttpMessagePoller.Poll(ps.NextUrl, client, ct, deserializeTransportMessage);
             PollState pollStatus = transportMessage.Match(
                 error =>
                 {
@@ -67,7 +69,7 @@ namespace CarrierPidgin.ServiceA.Bus
                 m => TransportMessageProcessor.ProcessTransportMessage(
                     ps,
                     m,
-                    mpd));
+                    domainMessageProcessors));
 
             return pollStatus;
         }

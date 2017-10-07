@@ -27,15 +27,10 @@ namespace CarrierPidgin.ServiceA
             var cts = new CancellationTokenSource();
             var ct = cts.Token;
 
-            List<MessageStream> messageStreams = GetMessageStreams();
             Either<DeserializeError, TransportMessage> DeserializeTransportMessage(string s) => 
                 MessageTransform.DeserializeTransportMessage(s, MessageStreamRepository.GetMessageTypeLookup());
-            var messageProcessingData = new MessageProcessingData(
-                    HandlerFactory.GetHandlerForMessageType,
-                    DeserializeTransportMessage
-                );
 
-            foreach (var messageStream in messageStreams)
+            foreach (var messageStream in GetMessageStreams())
             {
                 var streamLocation = ServiceLocator.GetMessageStreamLocation(messageStream.Path);
                 var messageStreamState = new MessageStreamState(
@@ -48,11 +43,9 @@ namespace CarrierPidgin.ServiceA
 
                 MessageStreamPoller.MainInfinitePollerAsync(
                     messageStreamState,
-                    ct,
-                    messageStream.DefaultDelayMs,
-                    messageStream.PollingErrorPolicy,
-                    messageProcessingData,
-                    ServiceCreator);
+                    HandlerFactory.GetHandlerForMessageType,
+                    DeserializeTransportMessage,
+                    messageStream.DefaultDelayMs, messageStream.PollingErrorPolicy, ServiceCreator, ct);
             }
 
             Console.WriteLine("press enter to stop");
