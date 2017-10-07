@@ -56,7 +56,8 @@ namespace CarrierPidgin.ServiceA.Bus
             CancellationToken ct,
             MessageProcessingData mpd)
         {
-            Either<HttpMessagePoller.PollingError, TransportMessage> transportMessage = await HttpMessagePoller.Poll(ps.NextUrl, client, ct);
+            Either<HttpMessagePoller.PollingError, TransportMessage> transportMessage = 
+                await HttpMessagePoller.Poll(ps.NextUrl, client, ct, mpd.DeserializeTransportMessage);
             PollState pollStatus = transportMessage.Match(
                 error =>
                 {

@@ -1,7 +1,6 @@
 using System;
 using CarrierPidgin.Lib;
 using Hdq.Lib;
-using Newtonsoft.Json.Linq;
 using NLog;
 
 namespace CarrierPidgin.ServiceA.Bus
@@ -10,34 +9,26 @@ namespace CarrierPidgin.ServiceA.Bus
     {
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
 
+        private static readonly int HandlerRetryCount = 3;
+
         public static IProcessMessageResult ProcessMessage(
             DomainMessage message,
-            MessageStreamName queueuName,
+            MessageStreamName queueName,
             MessageProcessingData mpd)
         {
-
             Logger.Trace($"ProcessMessage: {message.Header}");
-            var msgTypeStr = message.Header.MessageType;
-            var msgContent = message.Message;
-            var msgType = mpd.MessageTypeLookup[msgTypeStr];
-            int handlerRetryCount = 3;
 
             var context = new DomainMessageProcessingContext(
-                 new Retries(handlerRetryCount),
+                 new Retries(HandlerRetryCount),
                  message.Header,
-                 queueuName
+                 queueName
             );
 
-            Either<MessageTransform.DeserializeError, object> msg2 =
-                new Either<MessageTransform.DeserializeError, object>(msgContent);
-
+            Either<DeserializeError, object> msg2 =
+                new Either<DeserializeError, object>(message.Message);
             return msg2.Match(
                 e => new DeserializationError(e.Exception),
-                msg3 =>
-                {
-                    var obj = ((JObject) msg3).ToObject(msgType);
-                    return ProcessMsg(obj, msgType, context, mpd.DomainMessageProcessorLookup);
-                });
+                msg3 => ProcessMsg(msg3, context, mpd.DomainMessageProcessorLookup));
         }
 
         public class Retries
@@ -86,11 +77,10 @@ namespace CarrierPidgin.ServiceA.Bus
 
         public static IProcessMessageResult ProcessMsg(
             object msg, 
-            Type msgType, 
             DomainMessageProcessingContext messageContext,
             Func<Type, Action<DomainMessageProcessor.DomainMessageProcessingContext, object>> domainMessageProcessorLookup)
         {
-
+            var msgType = msg.GetType();
             var msgHandler = domainMessageProcessorLookup(msgType);
             try
             {
@@ -106,7 +96,6 @@ namespace CarrierPidgin.ServiceA.Bus
                 }
                 return ProcessMsg(
                     msg,
-                    msgType,
                     new DomainMessageProcessingContext(
                         messageContext.Retries.CreateNextRetry(),
                         messageContext.MessageHeader,

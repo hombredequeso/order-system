@@ -1,10 +1,13 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
-using System.Net;
+using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
+using CarrierPidgin.Lib;
 using Hdq.Lib;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace CarrierPidgin.ServiceA.Bus
 {
@@ -21,6 +24,24 @@ namespace CarrierPidgin.ServiceA.Bus
             {
                 return new Either<DeserializeError, T>(new DeserializeError(e));
             }
+        }
+
+        public static Either<DeserializeError, TransportMessage> DeserializeTransportMessage(
+            string s,
+            Dictionary<string, Type> domainMessageTypeLookup)
+        {
+            var deserializedA = Deserialize<TransportMessage>(s);
+            return deserializedA.Match(
+                e => deserializedA,
+                tm =>
+                {
+                    var result = new TransportMessage(tm.Header,
+                        tm.Messages.Select(m => new DomainMessage(
+                            m.Header, 
+                            ((JObject)m.Message).ToObject(domainMessageTypeLookup[m.Header.MessageType])
+                            )).ToList());
+                    return new Either<DeserializeError, TransportMessage>(result);
+                });
         }
 
         public static Either<DeserializeError, T> Deserialize<T>(string s)
@@ -46,16 +67,6 @@ namespace CarrierPidgin.ServiceA.Bus
                     return new Either<HttpError, string>(s);
                 }
             }
-        }
-
-        public class DeserializeError
-        {
-            public DeserializeError(Exception exception)
-            {
-                Exception = exception;
-            }
-
-            public Exception Exception { get; }
         }
     }
 }

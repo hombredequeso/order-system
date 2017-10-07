@@ -28,9 +28,11 @@ namespace CarrierPidgin.ServiceA
             var ct = cts.Token;
 
             List<MessageStream> messageStreams = GetMessageStreams();
+            Either<DeserializeError, TransportMessage> DeserializeTransportMessage(string s) => 
+                MessageTransform.DeserializeTransportMessage(s, MessageStreamRepository.GetMessageTypeLookup());
             var messageProcessingData = new MessageProcessingData(
-                    MessageStreamRepository.GetMessageTypeLookup(),
-                    HandlerFactory.GetHandlerForMessageType
+                    HandlerFactory.GetHandlerForMessageType,
+                    DeserializeTransportMessage
                 );
 
             foreach (var messageStream in messageStreams)

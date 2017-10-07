@@ -1,22 +1,24 @@
 ﻿using System;
-using System.Collections.Generic;
+using CarrierPidgin.Lib;
+using Hdq.Lib;
 
 namespace CarrierPidgin.ServiceA.Bus
 {
     public class MessageProcessingData
     {
         public MessageProcessingData(
-            Dictionary<string, Type> messageTypeLookup, 
-            Func<Type, Action<DomainMessageProcessor.DomainMessageProcessingContext, object>> domainMessageProcessorLookup)
+            Func<Type, Action<DomainMessageProcessor.DomainMessageProcessingContext, object>> domainMessageProcessorLookup, 
+            Func<string, Either<DeserializeError, TransportMessage>> deserializeTransportMessage)
         {
-            MessageTypeLookup = messageTypeLookup;
             DomainMessageProcessorLookup = domainMessageProcessorLookup;
+            DeserializeTransportMessage = deserializeTransportMessage;
         }
 
-        public Dictionary<string, Type> MessageTypeLookup { get; }
         public Func<Type, Action<DomainMessageProcessor.DomainMessageProcessingContext, object>> DomainMessageProcessorLookup
         {
             get;
         }
+
+        public Func<string, Either<DeserializeError, TransportMessage>> DeserializeTransportMessage { get; }
     }
 }

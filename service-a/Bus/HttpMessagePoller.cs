@@ -1,5 +1,4 @@
 using System;
-using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using CarrierPidgin.Lib;
@@ -23,7 +22,8 @@ namespace CarrierPidgin.ServiceA.Bus
         public static async Task<Either<PollingError, TransportMessage>> Poll(
             string path, 
             IHttpService httpClient, 
-            CancellationToken ct)
+            CancellationToken ct, 
+            Func<string, Either<DeserializeError, TransportMessage>> mpdDeserializeTransportMessage)
         {
             Logger.Trace($"HttpMessagePoller.Poll GET {path}");
             try
@@ -33,9 +33,7 @@ namespace CarrierPidgin.ServiceA.Bus
                     error => new Either<PollingError, TransportMessage>(PollingError.ErrorMakingHttpRequest),
                     c =>
                     {
-                        // TODO: need to deserialize TransportMessage domain messages into their actual type (but as objects)
-                        //       (not as JObject's which is what is currently happening.
-                        var m = MessageTransform.Deserialize<TransportMessage>(c);
+                        var m = mpdDeserializeTransportMessage(c);
                         return m.Match(
                             left => new Either<PollingError, TransportMessage>(PollingError
                                 .ErrorDeserializingContent),

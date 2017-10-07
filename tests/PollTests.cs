@@ -5,6 +5,8 @@ using System.IO;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
+using CarrierPidgin.Lib;
+using CarrierPidgin.ServiceA;
 using CarrierPidgin.ServiceA.Bus;
 using Hdq.Lib;
 using NUnit.Framework;
@@ -73,10 +75,13 @@ namespace tests
                 new Either<HttpError, string>(new HttpError(HttpStatusCode.BadRequest))
             };
 
+            Func<string, Either<DeserializeError, TransportMessage>> deserializeTransportMessage = s =>
+                MessageTransform.DeserializeTransportMessage(s,
+                    new Dictionary<string, Type> {{TestMessage.MessageName, typeof(TestMessage)}});
             var initialPollState = BasicInitialPollState(pollingPolicy);
             var mpd = new MessageProcessingData(
-                new Dictionary<string, Type>{{TestMessage.MessageName, typeof(TestMessage)}}, 
-                GetHandlerForMessageType);
+                GetHandlerForMessageType,
+               deserializeTransportMessage );
 
             // When:
             PollState newPollStateTask = await MessageStreamPoller.Execute(
@@ -122,9 +127,15 @@ namespace tests
             };
 
             var initialPollState = BasicInitialPollState(pollingPolicy);
+
+            Either<DeserializeError, TransportMessage> DeserializeTransportMessage(string s) => 
+                MessageTransform.DeserializeTransportMessage(
+                    s, 
+                    new Dictionary<string, Type> {{TestMessage.MessageName, typeof(TestMessage)}});
+
             var mpd = new MessageProcessingData(
-                new Dictionary<string, Type>{{TestMessage.MessageName, typeof(TestMessage)}}, 
-                GetHandlerForMessageType);
+                GetHandlerForMessageType,
+                DeserializeTransportMessage);
 
             // When:
             PollState newPollStateTask = await MessageStreamPoller.Execute(
