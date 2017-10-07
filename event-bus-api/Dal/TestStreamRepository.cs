@@ -4,7 +4,6 @@ using System.Linq;
 using CarrierPidgin.EventBus.Module;
 using CarrierPidgin.Lib;
 using CarrierPidgin.TestService.Events;
-using Newtonsoft.Json;
 
 namespace CarrierPidgin.EventBus.Dal
 {
@@ -51,13 +50,7 @@ namespace CarrierPidgin.EventBus.Dal
                             null,
                             null
                         ),
-                        JsonConvert.SerializeObject(
-                            evt,
-                            Formatting.None,
-                            new JsonSerializerSettings
-                            {
-                                NullValueHandling = NullValueHandling.Ignore
-                            })
+                        evt
                     );
                 })
                 .ToList();
@@ -74,13 +67,7 @@ namespace CarrierPidgin.EventBus.Dal
                                 null,
                                 null
                             ),
-                            JsonConvert.SerializeObject(
-                                e,
-                                Formatting.None,
-                                new JsonSerializerSettings
-                                {
-                                    NullValueHandling = NullValueHandling.Ignore
-                                })
+                            e
                         );
             Events.Add(newEvent);
             return newEvent;

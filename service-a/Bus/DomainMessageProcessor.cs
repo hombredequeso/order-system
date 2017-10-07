@@ -1,6 +1,7 @@
 using System;
 using CarrierPidgin.Lib;
 using Hdq.Lib;
+using Newtonsoft.Json.Linq;
 using NLog;
 
 namespace CarrierPidgin.ServiceA.Bus
@@ -27,11 +28,16 @@ namespace CarrierPidgin.ServiceA.Bus
                  queueuName
             );
 
-            Either<MessageTransform.DeserializeError, object> msg2 = MessageTransform.Deserialize(msgContent, msgType);
+            Either<MessageTransform.DeserializeError, object> msg2 =
+                new Either<MessageTransform.DeserializeError, object>(msgContent);
 
             return msg2.Match(
                 e => new DeserializationError(e.Exception),
-                msg3 => ProcessMsg(msg3, msgType, context, mpd.DomainMessageProcessorLookup));
+                msg3 =>
+                {
+                    var obj = ((JObject) msg3).ToObject(msgType);
+                    return ProcessMsg(obj, msgType, context, mpd.DomainMessageProcessorLookup);
+                });
         }
 
         public class Retries

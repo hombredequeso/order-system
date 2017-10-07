@@ -33,6 +33,8 @@ namespace CarrierPidgin.ServiceA.Bus
                     error => new Either<PollingError, TransportMessage>(PollingError.ErrorMakingHttpRequest),
                     c =>
                     {
+                        // TODO: need to deserialize TransportMessage domain messages into their actual type (but as objects)
+                        //       (not as JObject's which is what is currently happening.
                         var m = MessageTransform.Deserialize<TransportMessage>(c);
                         return m.Match(
                             left => new Either<PollingError, TransportMessage>(PollingError

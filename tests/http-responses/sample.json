@@ -18,7 +18,7 @@
                 "aggregateId": null,
                 "versionNumber": null
             },
-            "message": "{\"MessageId\":100}"
+            "message": {"MessageId":100}
         },
         {
             "header": {
@@ -28,7 +28,7 @@
                 "aggregateId": null,
                 "versionNumber": null
             },
-            "message": "{\"MessageId\":101}"
+            "message": {"MessageId":100}
         },
         {
             "header": {
@@ -38,7 +38,7 @@
                 "aggregateId": null,
                 "versionNumber": null
             },
-            "message": "{\"MessageId\":102}"
+            "message": {"MessageId":100}
         },
         {
             "header": {
@@ -48,7 +48,7 @@
                 "aggregateId": null,
                 "versionNumber": null
             },
-            "message": "{\"MessageId\":103}"
+            "message": {"MessageId":100}
         }
     ]
 }

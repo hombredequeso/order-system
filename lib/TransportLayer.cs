@@ -6,14 +6,14 @@ namespace CarrierPidgin.Lib
 {
     public class DomainMessage
     {
-        public DomainMessage(MessageHeader header, string message)
+        public DomainMessage(MessageHeader header, object message)
         {
             Header = header;
             Message = message;
         }
 
         public MessageHeader Header { get; }
-        public string Message { get; }
+        public object Message { get; }
     }
 
     public class MessageHeader

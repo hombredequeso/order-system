@@ -99,6 +99,9 @@
     <Compile Include="..\lib\EventStoreItem.cs">
       <Link>Dal\EventStoreItem.cs</Link>
     </Compile>
+    <Compile Include="..\lib\OrderEvents.cs">
+      <Link>Dal\OrderEvents.cs</Link>
+    </Compile>
     <Compile Include="..\lib\TestMessages.cs">
       <Link>TestService\TestMessages.cs</Link>
     </Compile>

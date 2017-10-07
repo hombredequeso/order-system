@@ -4,7 +4,10 @@ using System.Linq;
 using CarrierPidgin.EventBus.Module;
 using CarrierPidgin.EventStore;
 using CarrierPidgin.Lib;
+using CarrierPidgin.OrderService.Messages;
 using Dapper;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using Npgsql;
 
 namespace CarrierPidgin.EventBus.Dal
@@ -47,6 +50,7 @@ namespace CarrierPidgin.EventBus.Dal
 
         private static DomainMessage ToDomainEvent(EventStoreItem item, long messageNumber)
         {
+            var eventType = OrderEvents.MessageTypeLookup.Single(kvp => kvp.Value == item.MessageType).Key;
             return new DomainMessage(
                 new MessageHeader(
                     messageNumber,
@@ -55,7 +59,7 @@ namespace CarrierPidgin.EventBus.Dal
                     item.Id.ToString(),
                     item.Version
                 ),
-                item.SerializedMessage
+                JsonConvert.DeserializeObject(item.SerializedMessage, eventType)
             );
         }
     }
