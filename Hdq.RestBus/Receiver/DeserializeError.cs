@@ -1,6 +1,6 @@
 using System;
 
-namespace CarrierPidgin.ServiceA.Bus
+namespace Hdq.RestBus.Receiver
 {
     public class DeserializeError
     {

@@ -69,41 +69,26 @@
     <Compile Include="..\lib\TestMessages.cs">
       <Link>TestDomain\TestMessages.cs</Link>
     </Compile>
-    <Compile Include="..\lib\TransportLayer.cs">
-      <Link>Bus\TransportLayer.cs</Link>
-    </Compile>
     <Compile Include="..\lib\UnitOfWork.cs">
       <Link>Dal\UnitOfWork.cs</Link>
     </Compile>
-    <Compile Include="Bus\DeserializeError.cs" />
-    <Compile Include="Bus\MessageStreamPoller.cs" />
-    <Compile Include="Bus\PollingPolicy.cs" />
     <Compile Include="Dal\OrderStatisticsRepository.cs" />
     <Compile Include="Dal\OrderStatisticsRow.cs" />
-    <Compile Include="Bus\DomainMessageProcessor.cs" />
-    <Compile Include="Bus\MessageProcessingContext.cs" />
-    <Compile Include="Bus\MessageStreamName.cs" />
-    <Compile Include="Bus\MessageStreamState.cs" />
-    <Compile Include="Bus\MessageTransform.cs" />
     <Compile Include="HandlerFactory.cs" />
-    <Compile Include="OrderDomain\OrderStreamRepository.cs" />
+    <Compile Include="OrderDomain\OrderEndpointRepository.cs" />
     <Compile Include="Handlers\AddToStatsWhenOrderPlacedHandler.cs" />
-    <Compile Include="Bus\MessageStream.cs" />
-    <Compile Include="Bus\HttpMessagePoller.cs" />
-    <Compile Include="Bus\PollState.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Bus\ServiceLocator.cs" />
     <Compile Include="Dal\Database.cs" />
     <Compile Include="Handlers\DeDupHandler.cs" />
     <Compile Include="Handlers\HandlerFactory.cs" />
     <Compile Include="Entities\OrderStatistics.cs" />
     <Compile Include="Handlers\TransactionHandler.cs" />
     <Compile Include="Handlers\UpdateTotalOrderCountWhenOrderPlacedHandler.cs" />
-    <Compile Include="Bus\TransportMessageProcessor.cs" />
-    <Compile Include="TestDomain\TestStreamRepository.cs" />
+    <Compile Include="ServiceLocator.cs" />
+    <Compile Include="TestDomain\TestEndpointRepository.cs" />
     <Compile Include="Handlers\WidgetizeWhenSomethingHappenedEventHandler.cs" />
-    <Compile Include="MessageStreamRepository.cs" />
+    <Compile Include="MessageEndpointRepository.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
@@ -115,6 +100,11 @@
     </None>
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <ProjectReference Include="..\Hdq.RestBus\Hdq.RestBus.csproj">
+      <Project>{45f11050-f276-4c3c-9c6d-b50d578edc2d}</Project>
+      <Name>Hdq.RestBus</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

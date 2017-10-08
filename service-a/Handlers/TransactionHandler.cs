@@ -1,6 +1,6 @@
 using System;
-using CarrierPidgin.Lib;
-using CarrierPidgin.ServiceA.Bus;
+using Hdq.RestBus;
+using Hdq.RestBus.Receiver;
 
 namespace CarrierPidgin.ServiceA.Handlers
 {

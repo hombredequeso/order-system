@@ -1,6 +1,6 @@
 using System;
-using CarrierPidgin.Lib;
-using CarrierPidgin.ServiceA.Bus;
+using Hdq.RestBus;
+using Hdq.RestBus.Receiver;
 using CarrierPidgin.ServiceA.Dal;
 using Dapper;
 using Optional;
@@ -21,7 +21,7 @@ namespace CarrierPidgin.ServiceA.Handlers
     {
         public static Option<Tuple<long, MessageQueueProcessingDetailsRow>> GetLastProcessedMessageNumber(
             UnitOfWork uow, 
-            MessageStreamName queueName)
+            MessageEndpointName queueName)
         {
             var getQuery =
                 @"SELECT ""Id"", ""QueueName"", ""LastMessageNumber"", ""Version"", ""UpdatedTimestamp"" from ""MessageQueueProcessingDetails"" where ""QueueName"" = @queueName";
@@ -66,7 +66,7 @@ namespace CarrierPidgin.ServiceA.Handlers
         public static void InsertLastProcessedMessage(
             UnitOfWork uow, 
             long messageNumber, 
-            MessageStreamName queueName)
+            MessageEndpointName queueName)
         {
             MessageQueueProcessingDetailsRow d = new MessageQueueProcessingDetailsRow()
             {
@@ -85,7 +85,7 @@ namespace CarrierPidgin.ServiceA.Handlers
 
         internal static void InsertOrUpdateLastProcessedMessage(
             UnitOfWork uow, 
-            MessageStreamName queueName, 
+            MessageEndpointName queueName, 
             long messageNumber, 
             Option<MessageQueueProcessingDetailsRow> option)
         {
@@ -115,7 +115,7 @@ namespace CarrierPidgin.ServiceA.Handlers
 
         public void Handle(
             T evt, 
-            MessageStreamName queueName, 
+            MessageEndpointName queueName, 
             long messageNumber)
         {
             Option<Tuple<long, MessageQueueProcessingDetailsRow>> lastProcessedMessage = 

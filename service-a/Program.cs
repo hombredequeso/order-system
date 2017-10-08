@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading;
-using CarrierPidgin.Lib;
-using CarrierPidgin.ServiceA.Bus;
+using Hdq.RestBus;
+using Hdq.RestBus.Receiver;
 using CarrierPidgin.ServiceA.Dal;
 using Hdq.Lib;
 using NLog;
@@ -13,11 +13,11 @@ namespace CarrierPidgin.ServiceA
     {
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
 
-        private static List<MessageStream> GetMessageStreams()
+        private static List<MessageEndpoint> GetMessageEndpoints()
         {
             using (var statisticsUow = new UnitOfWork(Database.ConnectionString))
             {
-                return MessageStreamRepository.GetAllMessageStreams(statisticsUow);
+                return MessageEndpointRepository.GetAll(statisticsUow);
             }
         }
 
@@ -28,24 +28,24 @@ namespace CarrierPidgin.ServiceA
             var ct = cts.Token;
 
             Either<DeserializeError, TransportMessage> DeserializeTransportMessage(string s) => 
-                MessageTransform.DeserializeTransportMessage(s, MessageStreamRepository.GetMessageTypeLookup());
+                Deserializer.DeserializeTransportMessage(s, MessageEndpointRepository.GetMessageTypeLookup());
 
-            foreach (var messageStream in GetMessageStreams())
+            foreach (var endpoint in GetMessageEndpoints())
             {
-                var streamLocation = ServiceLocator.GetMessageStreamLocation(messageStream.Path);
-                var messageStreamState = new MessageStreamState(
-                    streamLocation,
-                    messageStream.LastSuccessfullyProcessedMessage,
-                    messageStream.Name);
+                var channelLocation = ServiceLocator.GetMessageChannelLocation(endpoint.Path);
+                var messageEndpointState = new MessageEndpointState(
+                    channelLocation,
+                    endpoint.LastSuccessfullyProcessedMessage,
+                    endpoint.Name);
 
-                var uriBuilder = new UriBuilder(streamLocation.Scheme, streamLocation.Host, streamLocation.Port);
+                var uriBuilder = new UriBuilder(channelLocation.Scheme, channelLocation.Host, channelLocation.Port);
                 IHttpService ServiceCreator() => new HttpService(uriBuilder.Uri);
 
-                MessageStreamPoller.MainInfinitePollerAsync(
-                    messageStreamState,
+                MessageEndpointPoller.MainInfinitePollerAsync(
+                    messageEndpointState,
                     HandlerFactory.GetHandlerForMessageType,
                     DeserializeTransportMessage,
-                    messageStream.DefaultDelayMs, messageStream.PollingErrorPolicy, ServiceCreator, ct);
+                    endpoint.DefaultDelayMs, endpoint.PollingErrorPolicy, ServiceCreator, ct);
             }
 
             Console.WriteLine("press enter to stop");

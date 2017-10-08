@@ -3,7 +3,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using CarrierPidgin.EventBus.Dal;
-using CarrierPidgin.Lib;
+using Hdq.RestBus;
 using Nancy;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;

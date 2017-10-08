@@ -1,7 +1,7 @@
 ﻿using System;
-using CarrierPidgin.Lib;
+using Hdq.RestBus;
 using CarrierPidgin.ServiceA;
-using CarrierPidgin.ServiceA.Bus;
+using Hdq.RestBus.Receiver;
 using CarrierPidgin.ServiceA.Handlers;
 using FluentAssertions;
 using NUnit.Framework;
@@ -22,7 +22,7 @@ namespace tests
         [Test]
         public void Handle_Creates_Entry_Where_None_Exists_For_A_Queue()
         {
-            MessageStreamName queueName = new MessageStreamName(Guid.NewGuid().ToString());
+            MessageEndpointName queueName = new MessageEndpointName(Guid.NewGuid().ToString());
             long messageNumber = 1;
 
             using (var uow = new UnitOfWork(ConnectionString))

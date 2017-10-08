@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using CarrierPidgin.EventBus.Module;
-using CarrierPidgin.Lib;
+using Hdq.RestBus;
 using CarrierPidgin.TestService.Events;
 
 namespace CarrierPidgin.EventBus.Dal

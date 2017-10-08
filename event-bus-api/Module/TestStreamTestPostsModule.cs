@@ -1,5 +1,5 @@
 ﻿using CarrierPidgin.EventBus.Dal;
-using CarrierPidgin.Lib;
+using Hdq.RestBus;
 using CarrierPidgin.TestService.Events;
 using Nancy;
 using Nancy.ModelBinding;

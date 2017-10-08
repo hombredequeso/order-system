@@ -1,9 +1,8 @@
 using System;
-using CarrierPidgin.Lib;
 using Hdq.Lib;
 using NLog;
 
-namespace CarrierPidgin.ServiceA.Bus
+namespace Hdq.RestBus.Receiver
 {
     public static class DomainMessageProcessor
     {
@@ -13,7 +12,7 @@ namespace CarrierPidgin.ServiceA.Bus
 
         public static IProcessMessageResult ProcessMessage(
             DomainMessage message,
-            MessageStreamName queueName,
+            MessageEndpointName queueName,
             Func<Type, Action<DomainMessageProcessingContext, object>> processors)
         {
             Logger.Trace($"ProcessMessage: {message.Header}");
@@ -63,7 +62,7 @@ namespace CarrierPidgin.ServiceA.Bus
             public DomainMessageProcessingContext(
                 Retries retries, 
                 MessageHeader messageHeader,
-                MessageStreamName sourceQueue)
+                MessageEndpointName sourceQueue)
             {
                 Retries = retries;
                 MessageHeader = messageHeader;
@@ -72,7 +71,7 @@ namespace CarrierPidgin.ServiceA.Bus
 
             public Retries Retries { get; }
             public MessageHeader MessageHeader { get; }
-            public MessageStreamName SourceQueue { get; }
+            public MessageEndpointName SourceQueue { get; }
         }
 
         public static IProcessMessageResult ProcessMsg(

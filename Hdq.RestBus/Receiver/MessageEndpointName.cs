@@ -1,24 +1,24 @@
 using System;
 
-namespace CarrierPidgin.ServiceA.Bus
+namespace Hdq.RestBus.Receiver
 {
     // https://github.com/hombredequeso/carrier-pidgin/wiki/Strong-Types
 
-    public class MessageStreamName : IEquatable<MessageStreamName>
+    public class MessageEndpointName : IEquatable<MessageEndpointName>
     {
         public string Value { get; }
-        public static int MaximumStreamNameLength = 100;
+        public static int MaximumEndpointNameLength = 100;
 
-        public MessageStreamName(string messageStreamNameStr)
+        public MessageEndpointName(string messageEndpointNameStr)
         {
-            if (string.IsNullOrWhiteSpace(messageStreamNameStr))
-                throw new ArgumentNullException(nameof(messageStreamNameStr));
-            if (messageStreamNameStr.Length > MaximumStreamNameLength)
-                throw new ArgumentException($"Cannot be longer than {MaximumStreamNameLength}", nameof(messageStreamNameStr));
-            Value = messageStreamNameStr;
+            if (string.IsNullOrWhiteSpace(messageEndpointNameStr))
+                throw new ArgumentNullException(nameof(messageEndpointNameStr));
+            if (messageEndpointNameStr.Length > MaximumEndpointNameLength)
+                throw new ArgumentException($"Cannot be longer than {MaximumEndpointNameLength}", nameof(messageEndpointNameStr));
+            Value = messageEndpointNameStr;
         }
 
-        public bool Equals(MessageStreamName other)
+        public bool Equals(MessageEndpointName other)
         {
             if (ReferenceEquals(null, other)) return false;
             if (ReferenceEquals(this, other)) return true;
@@ -30,10 +30,10 @@ namespace CarrierPidgin.ServiceA.Bus
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
             if (obj.GetType() != this.GetType()) return false;
-            return Equals((MessageStreamName) obj);
+            return Equals((MessageEndpointName) obj);
         }
 
-        public static bool operator ==(MessageStreamName a, MessageStreamName b)
+        public static bool operator ==(MessageEndpointName a, MessageEndpointName b)
         {
             // If both are null, or both are same instance, return true.
             if (System.Object.ReferenceEquals(a, b))
@@ -51,7 +51,7 @@ namespace CarrierPidgin.ServiceA.Bus
 
         }
 
-        public static bool operator !=(MessageStreamName a, MessageStreamName b)
+        public static bool operator !=(MessageEndpointName a, MessageEndpointName b)
         {
             return !(a == b);
         }

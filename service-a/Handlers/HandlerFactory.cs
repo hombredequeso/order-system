@@ -1,7 +1,7 @@
 using System;
-using CarrierPidgin.Lib;
+using Hdq.RestBus;
 using CarrierPidgin.OrderService.Messages;
-using CarrierPidgin.ServiceA.Bus;
+using Hdq.RestBus.Receiver;
 
 namespace CarrierPidgin.ServiceA.Handlers
 {

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using Npgsql;
 
-namespace CarrierPidgin.Lib
+namespace Hdq.RestBus
 {
     public class UnitOfWork : IDisposable
     {

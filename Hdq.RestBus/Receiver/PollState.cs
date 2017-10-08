@@ -1,13 +1,13 @@
 using System.Collections.Generic;
 
-namespace CarrierPidgin.ServiceA.Bus
+namespace Hdq.RestBus.Receiver
 {
     public class PollState
     {
         public PollState(
-            MessageStreamName messageStreamName, 
+            MessageEndpointName messageEndpointName, 
             uint defaultDelayMs, 
-            Dictionary<HttpMessagePoller.PollingError, uint> pollingErrorDelayPolicy, 
+            Dictionary<HttpChannelPoller.PollingError, uint> pollingErrorDelayPolicy, 
             long lastMessageSuccessfullyProcessed, 
             string nextUrl, 
             uint delayMs)
@@ -16,7 +16,7 @@ namespace CarrierPidgin.ServiceA.Bus
             DelayMs = delayMs;
             DefaultDelayMs = defaultDelayMs;
             LastMessageSuccessfullyProcessed = lastMessageSuccessfullyProcessed;
-            MessageStreamName = messageStreamName;
+            MessageEndpointName = messageEndpointName;
             PollingErrorDelayPolicy = pollingErrorDelayPolicy;
         }
 
@@ -24,11 +24,11 @@ namespace CarrierPidgin.ServiceA.Bus
         public string NextUrl { get; }
         public uint DelayMs { get; }
         public long LastMessageSuccessfullyProcessed { get; }
-        public  MessageStreamName MessageStreamName { get; }
+        public  MessageEndpointName MessageEndpointName { get; }
 
         public uint DefaultDelayMs { get; }
         public static uint NoDelay = 0;
-        public Dictionary<HttpMessagePoller.PollingError, uint> PollingErrorDelayPolicy { get; }
+        public Dictionary<HttpChannelPoller.PollingError, uint> PollingErrorDelayPolicy { get; }
 
         public bool CanPoll()
         {
@@ -40,10 +40,10 @@ namespace CarrierPidgin.ServiceA.Bus
             return DelayMs > 0;
         }
 
-        public PollState WithDelayFor(HttpMessagePoller.PollingError error)
+        public PollState WithDelayFor(HttpChannelPoller.PollingError error)
         {
             return new PollState(
-                MessageStreamName,
+                MessageEndpointName,
                 DefaultDelayMs, 
                 PollingErrorDelayPolicy, 
                 LastMessageSuccessfullyProcessed, 
@@ -54,7 +54,7 @@ namespace CarrierPidgin.ServiceA.Bus
         public PollState WithDelay(uint newDelay)
         {
             return new PollState(
-                MessageStreamName,
+                MessageEndpointName,
                 DefaultDelayMs, 
                 PollingErrorDelayPolicy, 
                 LastMessageSuccessfullyProcessed, 
@@ -68,7 +68,7 @@ namespace CarrierPidgin.ServiceA.Bus
             long? lastMessage = null)
         {
             return new PollState(
-                MessageStreamName,
+                MessageEndpointName,
                 DefaultDelayMs, 
                 PollingErrorDelayPolicy, 
                 lastMessage ?? LastMessageSuccessfullyProcessed, 

@@ -105,9 +105,6 @@
     <Compile Include="..\lib\TestMessages.cs">
       <Link>TestService\TestMessages.cs</Link>
     </Compile>
-    <Compile Include="..\lib\TransportLayer.cs">
-      <Link>MessageTransport\TransportLayer.cs</Link>
-    </Compile>
     <Compile Include="Dal\OrderRepository.cs" />
     <Compile Include="Module\EventRange.cs" />
     <Compile Include="Module\HomeModule.cs" />
@@ -123,6 +120,11 @@
     <None Include="App.config" />
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <ProjectReference Include="..\Hdq.RestBus\Hdq.RestBus.csproj">
+      <Project>{45f11050-f276-4c3c-9c6d-b50d578edc2d}</Project>
+      <Name>Hdq.RestBus</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

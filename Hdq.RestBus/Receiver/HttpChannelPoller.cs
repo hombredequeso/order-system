@@ -1,13 +1,12 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using CarrierPidgin.Lib;
 using Hdq.Lib;
 using NLog;
 
-namespace CarrierPidgin.ServiceA.Bus
+namespace Hdq.RestBus.Receiver
 {
-    public static class HttpMessagePoller
+    public static class HttpChannelPoller
     {
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
 
@@ -25,7 +24,7 @@ namespace CarrierPidgin.ServiceA.Bus
             CancellationToken ct, 
             Func<string, Either<DeserializeError, TransportMessage>> mpdDeserializeTransportMessage)
         {
-            Logger.Trace($"HttpMessagePoller.Poll GET {path}");
+            Logger.Trace($"HttpChannelPoller.Poll GET {path}");
             try
             {
                 var content = await httpClient.GetBodyFrom(path, ct);

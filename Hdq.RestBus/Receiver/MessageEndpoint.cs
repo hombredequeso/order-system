@@ -1,15 +1,15 @@
 ﻿using System.Collections.Generic;
 
-namespace CarrierPidgin.ServiceA.Bus
+namespace Hdq.RestBus.Receiver
 {
-    public class MessageStream
+    public class MessageEndpoint
     {
-        public MessageStream(
-            MessageStreamName name, 
+        public MessageEndpoint(
+            MessageEndpointName name, 
             string path, 
             long lastSuccessfullyProcessedMessage, 
             uint defaultPollingDelayMs, 
-            Dictionary<HttpMessagePoller.PollingError, uint> pollingErrorPolicy)
+            Dictionary<HttpChannelPoller.PollingError, uint> pollingErrorPolicy)
         {
             Path = path;
             LastSuccessfullyProcessedMessage = lastSuccessfullyProcessedMessage;
@@ -18,11 +18,11 @@ namespace CarrierPidgin.ServiceA.Bus
             PollingErrorPolicy = pollingErrorPolicy;
         }
 
-        public MessageStreamName Name { get; }
+        public MessageEndpointName Name { get; }
         public string Path { get; }
         public long LastSuccessfullyProcessedMessage { get; }
 
-        public Dictionary<HttpMessagePoller.PollingError, uint> PollingErrorPolicy { get; }
+        public Dictionary<HttpChannelPoller.PollingError, uint> PollingErrorPolicy { get; }
         public uint DefaultDelayMs { get; }
 
         public static readonly long NoMessagesProcessed = -1;

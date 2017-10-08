@@ -4,8 +4,8 @@ using System.IO;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
-using CarrierPidgin.Lib;
-using CarrierPidgin.ServiceA.Bus;
+using Hdq.RestBus;
+using Hdq.RestBus.Receiver;
 using Hdq.Lib;
 using NUnit.Framework;
 
@@ -43,10 +43,10 @@ namespace tests
         }
 
         public static PollState BasicInitialPollState(
-            Dictionary<HttpMessagePoller.PollingError, uint> pollingPolicy)
+            Dictionary<HttpChannelPoller.PollingError, uint> pollingPolicy)
         {
-            return new PollState(new MessageStreamName("testStream"),
-                PollingPolicy.DefaultDelayMs, pollingPolicy ?? PollingPolicy.DefaultPollingErrorPolicy, MessageStream.NoMessagesProcessed, "/next/url", 0);
+            return new PollState(new MessageEndpointName("testStream"),
+                PollingPolicy.DefaultDelayMs, pollingPolicy ?? PollingPolicy.DefaultPollingErrorPolicy, MessageEndpoint.NoMessagesProcessed, "/next/url", 0);
         }
 
         [Test]
@@ -55,19 +55,19 @@ namespace tests
             // Given:
             uint httpErrorDelay = 12345;
             var pollingPolicy = PollingPolicy.DefaultPollingErrorPolicy;
-            pollingPolicy[HttpMessagePoller.PollingError.ErrorMakingHttpRequest] = httpErrorDelay;
+            pollingPolicy[HttpChannelPoller.PollingError.ErrorMakingHttpRequest] = httpErrorDelay;
             var testResponses = new List<Either<HttpError, string>>()
             {
                 new Either<HttpError, string>(new HttpError(HttpStatusCode.BadRequest))
             };
 
             Func<string, Either<DeserializeError, TransportMessage>> deserializeTransportMessage = s =>
-                MessageTransform.DeserializeTransportMessage(s,
+                Deserializer.DeserializeTransportMessage(s,
                     new Dictionary<string, Type> {{TestMessage.MessageName, typeof(TestMessage)}});
             var initialPollState = BasicInitialPollState(pollingPolicy);
 
             // When:
-            PollState newPollStateTask = await MessageStreamPoller.Execute(
+            PollState newPollStateTask = await MessageEndpointPoller.Execute(
                 initialPollState, 
                 new TestHttpService(testResponses), 
                 new CancellationToken(), 
@@ -98,7 +98,7 @@ namespace tests
             // Given:
             uint httpErrorDelay = 12345;
             var pollingPolicy = PollingPolicy.DefaultPollingErrorPolicy;
-            pollingPolicy[HttpMessagePoller.PollingError.ErrorMakingHttpRequest] = httpErrorDelay;
+            pollingPolicy[HttpChannelPoller.PollingError.ErrorMakingHttpRequest] = httpErrorDelay;
 
 
             var loc = Path.Combine(
@@ -113,12 +113,12 @@ namespace tests
             var initialPollState = BasicInitialPollState(pollingPolicy);
 
             Either<DeserializeError, TransportMessage> DeserializeTransportMessage(string s) => 
-                MessageTransform.DeserializeTransportMessage(
+                Deserializer.DeserializeTransportMessage(
                     s, 
                     new Dictionary<string, Type> {{TestMessage.MessageName, typeof(TestMessage)}});
 
             // When:
-            PollState newPollStateTask = await MessageStreamPoller.Execute(
+            PollState newPollStateTask = await MessageEndpointPoller.Execute(
                 initialPollState, 
                 new TestHttpService(testResponses), 
                 new CancellationToken(), 

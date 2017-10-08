@@ -1,21 +1,21 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using CarrierPidgin.Lib;
+using Hdq.RestBus;
 using CarrierPidgin.OrderService.Messages;
-using CarrierPidgin.ServiceA.Bus;
+using Hdq.RestBus.Receiver;
 using CarrierPidgin.ServiceA.OrderDomain;
 using CarrierPidgin.ServiceA.TestDomain;
 using CarrierPidgin.TestService.Events;
 
 namespace CarrierPidgin.ServiceA
 {
-    public static class MessageStreamRepository
+    public static class MessageEndpointRepository
     {
-        public static List<MessageStream> GetAllMessageStreams(UnitOfWork statisticsUow)
+        public static List<MessageEndpoint> GetAll(UnitOfWork statisticsUow)
         {
-            return TestStreamRepository.GetAll()
-                .Concat(OrderStreamRepository.GetAll(statisticsUow))
+            return TestEndpointRepository.GetAll()
+                .Concat(OrderEndpointRepository.GetAll(statisticsUow))
                 .ToList();
         }
 

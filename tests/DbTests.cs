@@ -1,5 +1,5 @@
 ﻿using System;
-using CarrierPidgin.Lib;
+using Hdq.RestBus;
 using CarrierPidgin.ServiceA.Dal;
 using CarrierPidgin.ServiceA.Entities;
 using NUnit.Framework;

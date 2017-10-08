@@ -1,6 +1,6 @@
 ﻿using System;
 using CarrierPidgin.EventBus.Dal;
-using CarrierPidgin.Lib;
+using Hdq.RestBus;
 using Nancy;
 
 namespace CarrierPidgin.EventBus.Module

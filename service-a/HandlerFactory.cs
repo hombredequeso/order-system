@@ -1,6 +1,6 @@
 using System;
 using CarrierPidgin.OrderService.Messages;
-using CarrierPidgin.ServiceA.Bus;
+using Hdq.RestBus.Receiver;
 using CarrierPidgin.ServiceA.Handlers;
 using CarrierPidgin.TestService.Events;
 

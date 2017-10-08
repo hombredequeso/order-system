@@ -1,12 +1,11 @@
 using System.Collections.Generic;
 using System.Linq;
-using CarrierPidgin.Lib;
 
-namespace CarrierPidgin.ServiceA.Bus
+namespace Hdq.RestBus.Receiver
 {
-    public class MessageProcessingContext
+    public class MessageEndpointContext
     {
-        protected MessageProcessingContext(MessageStreamName sourceQueue)
+        protected MessageEndpointContext(MessageEndpointName sourceQueue)
         {
             Unprocessed = new List<DomainMessage>();
             ProcessedSuccessfully = new List<DomainMessage>();
@@ -14,11 +13,11 @@ namespace CarrierPidgin.ServiceA.Bus
             SourceQueue = sourceQueue;
         }
 
-        public MessageProcessingContext(
+        public MessageEndpointContext(
             IEnumerable<DomainMessage> processedSuccessfully, 
             IEnumerable<DomainMessage> processedUnsuccessfully, 
             IEnumerable<DomainMessage> unprocessed,
-            MessageStreamName sourceQueue)
+            MessageEndpointName sourceQueue)
         {
             Unprocessed = unprocessed.ToList();
             ProcessedSuccessfully = processedSuccessfully.ToList();
@@ -26,32 +25,32 @@ namespace CarrierPidgin.ServiceA.Bus
             SourceQueue = sourceQueue;
         }
 
-        public static MessageProcessingContext Start(MessageStreamName sourceQueue)
+        public static MessageEndpointContext Start(MessageEndpointName sourceQueue)
         {
-            return new MessageProcessingContext(sourceQueue);
+            return new MessageEndpointContext(sourceQueue);
         }
 
-        public  MessageProcessingContext AddSuccess(DomainMessage e)
+        public  MessageEndpointContext AddSuccess(DomainMessage e)
         {
-            return new MessageProcessingContext(
+            return new MessageEndpointContext(
                 ProcessedSuccessfully.Concat(new[] {e}),
                 ProcessedUnsuccessfully,
                 Unprocessed,
                 this.SourceQueue);
         }
 
-        public  MessageProcessingContext AddFailure(DomainMessage e)
+        public  MessageEndpointContext AddFailure(DomainMessage e)
         {
-            return new MessageProcessingContext(
+            return new MessageEndpointContext(
                 ProcessedSuccessfully,
                 ProcessedUnsuccessfully.Concat(new[] {e}),
                 Unprocessed,
                 this.SourceQueue);
         }
 
-        public  MessageProcessingContext AddUnprocessed(DomainMessage e)
+        public  MessageEndpointContext AddUnprocessed(DomainMessage e)
         {
-            return new MessageProcessingContext(
+            return new MessageEndpointContext(
                 ProcessedSuccessfully,
                 ProcessedUnsuccessfully,
                 Unprocessed.Concat(new[] {e}),
@@ -61,7 +60,7 @@ namespace CarrierPidgin.ServiceA.Bus
         public List<DomainMessage> ProcessedSuccessfully { get; }
         public List<DomainMessage> ProcessedUnsuccessfully { get; }
         public List<DomainMessage> Unprocessed { get; }
-        public MessageStreamName SourceQueue { get;  }
+        public MessageEndpointName SourceQueue { get;  }
         
     }
 }
