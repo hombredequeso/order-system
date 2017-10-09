@@ -6,23 +6,23 @@ namespace Hdq.RestBus.Receiver
     {
         public MessageEndpoint(
             MessageEndpointName name, 
-            string path, 
+            HttpChannel channel, 
             long lastSuccessfullyProcessedMessage, 
             uint defaultPollingDelayMs, 
-            Dictionary<HttpChannelPoller.PollingError, uint> pollingErrorPolicy)
+            Dictionary<HttpChannelPoller.PollingError, uint> pollingErrorDelays)
         {
-            Path = path;
+            Channel = channel;
             LastSuccessfullyProcessedMessage = lastSuccessfullyProcessedMessage;
             Name = name;
             DefaultDelayMs = defaultPollingDelayMs;
-            PollingErrorPolicy = pollingErrorPolicy;
+            PollingErrorDelays = pollingErrorDelays;
         }
 
         public MessageEndpointName Name { get; }
-        public string Path { get; }
+        public HttpChannel Channel { get;  }
         public long LastSuccessfullyProcessedMessage { get; }
 
-        public Dictionary<HttpChannelPoller.PollingError, uint> PollingErrorPolicy { get; }
+        public Dictionary<HttpChannelPoller.PollingError, uint> PollingErrorDelays { get; }
         public uint DefaultDelayMs { get; }
 
         public static readonly long NoMessagesProcessed = -1;

@@ -34,7 +34,7 @@ namespace tests
     [TestFixture]
     public class PollTests
     {
-        public static Action<DomainMessageProcessor.DomainMessageProcessingContext, object> GetHandlerForMessageType(
+        public static Action<DomainMessageProcessingContext, object> GetHandlerForMessageType(
             Type messageType)
         {
             if (messageType == typeof(TestMessage))
@@ -46,7 +46,7 @@ namespace tests
             Dictionary<HttpChannelPoller.PollingError, uint> pollingPolicy)
         {
             return new PollState(new MessageEndpointName("testStream"),
-                PollingPolicy.DefaultDelayMs, pollingPolicy ?? PollingPolicy.DefaultPollingErrorPolicy, MessageEndpoint.NoMessagesProcessed, "/next/url", 0);
+                PollingDelays.DefaultDelayMs, pollingPolicy ?? PollingDelays.DefaultPollingErrorDelays, MessageEndpoint.NoMessagesProcessed, "/next/url", 0);
         }
 
         [Test]
@@ -54,7 +54,7 @@ namespace tests
         {
             // Given:
             uint httpErrorDelay = 12345;
-            var pollingPolicy = PollingPolicy.DefaultPollingErrorPolicy;
+            var pollingPolicy = PollingDelays.DefaultPollingErrorDelays;
             pollingPolicy[HttpChannelPoller.PollingError.ErrorMakingHttpRequest] = httpErrorDelay;
             var testResponses = new List<Either<HttpError, string>>()
             {
@@ -62,7 +62,7 @@ namespace tests
             };
 
             Func<string, Either<DeserializeError, TransportMessage>> deserializeTransportMessage = s =>
-                Deserializer.DeserializeTransportMessage(s,
+                TransportMessageDeserializer.Deserialize(s,
                     new Dictionary<string, Type> {{TestMessage.MessageName, typeof(TestMessage)}});
             var initialPollState = BasicInitialPollState(pollingPolicy);
 
@@ -97,7 +97,7 @@ namespace tests
         {
             // Given:
             uint httpErrorDelay = 12345;
-            var pollingPolicy = PollingPolicy.DefaultPollingErrorPolicy;
+            var pollingPolicy = PollingDelays.DefaultPollingErrorDelays;
             pollingPolicy[HttpChannelPoller.PollingError.ErrorMakingHttpRequest] = httpErrorDelay;
 
 
@@ -113,7 +113,7 @@ namespace tests
             var initialPollState = BasicInitialPollState(pollingPolicy);
 
             Either<DeserializeError, TransportMessage> DeserializeTransportMessage(string s) => 
-                Deserializer.DeserializeTransportMessage(
+                TransportMessageDeserializer.Deserialize(
                     s, 
                     new Dictionary<string, Type> {{TestMessage.MessageName, typeof(TestMessage)}});
 

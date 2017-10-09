@@ -51,17 +51,17 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Receiver\DeserializeError.cs" />
+    <Compile Include="Receiver\DomainMessageProcessingContext.cs" />
     <Compile Include="Receiver\DomainMessageProcessor.cs" />
     <Compile Include="Receiver\HttpChannelPoller.cs" />
-    <Compile Include="Receiver\MessageChannelLocation.cs" />
+    <Compile Include="Receiver\HttpChannel.cs" />
     <Compile Include="Receiver\MessageEndpointContext.cs" />
     <Compile Include="Receiver\MessageEndpoint.cs" />
     <Compile Include="Receiver\MessageEndpointName.cs" />
     <Compile Include="Receiver\MessageEndpointPoller.cs" />
     <Compile Include="Receiver\MessageEndpointState.cs" />
-    <Compile Include="Receiver\Deserializer.cs" />
-    <Compile Include="Receiver\PollingPolicy.cs" />
+    <Compile Include="TransportMessageDeserializer.cs" />
+    <Compile Include="Receiver\PollingDelays.cs" />
     <Compile Include="Receiver\PollState.cs" />
     <Compile Include="Receiver\TransportMessageProcessor.cs" />
     <Compile Include="TransportLayer.cs" />

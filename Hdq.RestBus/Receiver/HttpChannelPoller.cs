@@ -22,7 +22,7 @@ namespace Hdq.RestBus.Receiver
             string path, 
             IHttpService httpClient, 
             CancellationToken ct, 
-            Func<string, Either<DeserializeError, TransportMessage>> mpdDeserializeTransportMessage)
+            Func<string, Either<DeserializeError, TransportMessage>> deserializeTransportMessage)
         {
             Logger.Trace($"HttpChannelPoller.Poll GET {path}");
             try
@@ -32,7 +32,7 @@ namespace Hdq.RestBus.Receiver
                     error => new Either<PollingError, TransportMessage>(PollingError.ErrorMakingHttpRequest),
                     c =>
                     {
-                        var m = mpdDeserializeTransportMessage(c);
+                        var m = deserializeTransportMessage(c);
                         return m.Match(
                             left => new Either<PollingError, TransportMessage>(PollingError
                                 .ErrorDeserializingContent),

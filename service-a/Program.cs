@@ -28,24 +28,28 @@ namespace CarrierPidgin.ServiceA
             var ct = cts.Token;
 
             Either<DeserializeError, TransportMessage> DeserializeTransportMessage(string s) => 
-                Deserializer.DeserializeTransportMessage(s, MessageEndpointRepository.GetMessageTypeLookup());
+                TransportMessageDeserializer.Deserialize(s, MessageEndpointRepository.GetMessageTypeLookup());
 
             foreach (var endpoint in GetMessageEndpoints())
             {
-                var channelLocation = ServiceLocator.GetMessageChannelLocation(endpoint.Path);
                 var messageEndpointState = new MessageEndpointState(
-                    channelLocation,
+                    endpoint.Channel,
                     endpoint.LastSuccessfullyProcessedMessage,
                     endpoint.Name);
 
-                var uriBuilder = new UriBuilder(channelLocation.Scheme, channelLocation.Host, channelLocation.Port);
-                IHttpService ServiceCreator() => new HttpService(uriBuilder.Uri);
+                IHttpService ServiceCreator() => new HttpService(new UriBuilder(
+                    endpoint.Channel.Scheme, 
+                    endpoint.Channel.Host, 
+                    endpoint.Channel.Port).Uri);
 
                 MessageEndpointPoller.MainInfinitePollerAsync(
                     messageEndpointState,
                     HandlerFactory.GetHandlerForMessageType,
                     DeserializeTransportMessage,
-                    endpoint.DefaultDelayMs, endpoint.PollingErrorPolicy, ServiceCreator, ct);
+                    endpoint.DefaultDelayMs, 
+                    endpoint.PollingErrorDelays, 
+                    ServiceCreator, 
+                    ct);
             }
 
             Console.WriteLine("press enter to stop");

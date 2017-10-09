@@ -8,12 +8,18 @@ namespace Hdq.RestBus.Receiver
 {
     public static class MessageEndpointPoller
     {
+        // This is the entry point for an application to use this library.
+        // Calling this function sets up the system to poll an endpoint, passing messages through the
+        // relevant domainMessageProcessors.
+        // Incidentally, it is essentially the last function in the receiving library to be non-functional,
+        // what with its returning a Task (as good as void), and having a while loop that mutates the pollStatus
+        // object.
         public static async Task MainInfinitePollerAsync(
             MessageEndpointState endpointState, 
-            Func<Type, Action<DomainMessageProcessor.DomainMessageProcessingContext, object>> domainMessageProcessors,
+            Func<Type, Action<DomainMessageProcessingContext, object>> domainMessageProcessors,
             Func<string, Either<DeserializeError, TransportMessage>> deserializeTransportMessage,
             uint pollRateMs, 
-            Dictionary<HttpChannelPoller.PollingError, uint> pollingErrorPolicy, 
+            Dictionary<HttpChannelPoller.PollingError, uint> pollingErrorDelays, 
             Func<IHttpService> httpServiceCreator, 
             CancellationToken ct)
         {
@@ -22,7 +28,7 @@ namespace Hdq.RestBus.Receiver
             {
                 while (!ct.IsCancellationRequested)
                 {
-                    var channelLocation = endpointState.ChannelLocation;
+                    var channelLocation = endpointState.Channel;
                     var uriBuilder = new UriBuilder(
                             channelLocation.Scheme,
                             channelLocation.Host,
@@ -32,7 +38,7 @@ namespace Hdq.RestBus.Receiver
                     var startUrl = uriBuilder.ToString();
 
                     var pollStatus = new PollState(endpointState.EndpointName,
-                        pollRateMs, pollingErrorPolicy, endpointState.LastSuccessfullyProcessedMessage, startUrl, 0);
+                        pollRateMs, pollingErrorDelays, endpointState.LastSuccessfullyProcessedMessage, startUrl, 0);
 
                     while (pollStatus.CanPoll())
                     {
@@ -50,11 +56,15 @@ namespace Hdq.RestBus.Receiver
             }
         }
 
+        // The start of a largely functional code.
+        // Given the current pollstate (ps), this function polls the channel through the 'client',
+        // executing the relevant domainMessageProcessors for any new messages received, in order,
+        // without processing duplicates.
         public static async Task<PollState> Execute(
             PollState ps, 
             IHttpService client, 
             CancellationToken ct,
-            Func<Type, Action<DomainMessageProcessor.DomainMessageProcessingContext, object>> domainMessageProcessors,
+            Func<Type, Action<DomainMessageProcessingContext, object>> domainMessageProcessors,
             Func<string, Either<DeserializeError, TransportMessage>> deserializeTransportMessage)
         {
             Either<HttpChannelPoller.PollingError, TransportMessage> transportMessage = 

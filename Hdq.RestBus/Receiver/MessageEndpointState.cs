@@ -3,16 +3,16 @@
     public class MessageEndpointState
     {
         public MessageEndpointState(
-            MessageChannelLocation channelLocation, 
+            HttpChannel channel, 
             long lastSuccessfullyProcessedMessage,
             MessageEndpointName endpointName)
         {
-            ChannelLocation = channelLocation;
+            Channel = channel;
             LastSuccessfullyProcessedMessage = lastSuccessfullyProcessedMessage;
             EndpointName = endpointName;
         }
 
-        public MessageChannelLocation ChannelLocation { get; }
+        public HttpChannel Channel { get; }
         public long LastSuccessfullyProcessedMessage { get; }
         public MessageEndpointName EndpointName { get; }
     }

@@ -20,10 +20,10 @@ namespace CarrierPidgin.ServiceA.Handlers
         }
 
         public string ConnectionString { get; private set; }
-        public Action<DomainMessageProcessor.DomainMessageProcessingContext, T> Next {get; set; }
+        public Action<DomainMessageProcessingContext, T> Next {get; set; }
         public UnitOfWork Uow { get; private set; }
 
-        public void Handle(DomainMessageProcessor.DomainMessageProcessingContext ctx, T evt)
+        public void Handle(DomainMessageProcessingContext ctx, T evt)
         {
             using (Uow = new UnitOfWork(ConnectionString))
             {

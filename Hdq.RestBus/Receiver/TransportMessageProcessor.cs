@@ -14,7 +14,7 @@ namespace Hdq.RestBus.Receiver
         public static PollState ProcessTransportMessage(
             PollState pollStatus,
             TransportMessage transportMessage,
-            Func<Type, Action<DomainMessageProcessor.DomainMessageProcessingContext, object>> processors)
+            Func<Type, Action<DomainMessageProcessingContext, object>> processors)
         {
             // Logger.Trace("---------------------------------------------------------");
             // Logger.Trace($"PROCESSING TRANSPORT MESSAGE FOR: {pollStatus.MessageEndpointName}");
@@ -70,7 +70,7 @@ namespace Hdq.RestBus.Receiver
         private static MessageEndpointContext ProcessNext(
             MessageEndpointContext endpointContext, 
             DomainMessage domainMessage,
-            Func<Type, Action<DomainMessageProcessor.DomainMessageProcessingContext, object>> processors)
+            Func<Type, Action<DomainMessageProcessingContext, object>> processors)
         {
             if (endpointContext.ProcessedUnsuccessfully.Any())
                 return endpointContext.AddUnprocessed(domainMessage);

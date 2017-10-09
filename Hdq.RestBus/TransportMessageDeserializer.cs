@@ -5,11 +5,22 @@ using Hdq.Lib;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
-namespace Hdq.RestBus.Receiver
+namespace Hdq.RestBus
 {
-    public static class Deserializer
+    public class DeserializeError
     {
-        public static Either<DeserializeError, TransportMessage> DeserializeTransportMessage(
+        public DeserializeError(Exception exception)
+        {
+            Exception = exception;
+        }
+
+        public Exception Exception { get; }
+    }
+
+
+    public static class TransportMessageDeserializer
+    {
+        public static Either<DeserializeError, TransportMessage> Deserialize(
             string s,
             Dictionary<string, Type> domainMessageTypeLookup)
         {

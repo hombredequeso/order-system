@@ -7,7 +7,7 @@ namespace CarrierPidgin.ServiceA.Handlers
 {
     public static class HandlerFactory
     {
-        public static Action<DomainMessageProcessor.DomainMessageProcessingContext, OrderPlacedEvent> GetOrderPlacedHandler()
+        public static Action<DomainMessageProcessingContext, OrderPlacedEvent> GetOrderPlacedHandler()
         {
             UnitOfWork unitOfWorkContainer = null;
             Action<OrderPlacedEvent> businessHandlerAction = e =>
@@ -16,7 +16,7 @@ namespace CarrierPidgin.ServiceA.Handlers
                 businessHandler.Handle(e);
             };
 
-            Action<DomainMessageProcessor.DomainMessageProcessingContext, OrderPlacedEvent> deDupAction = (c,e) =>
+            Action<DomainMessageProcessingContext, OrderPlacedEvent> deDupAction = (c,e) =>
             {
                 var handler = new DeDupHandler<OrderPlacedEvent>(unitOfWorkContainer);
                 handler._next = businessHandlerAction;
@@ -24,7 +24,7 @@ namespace CarrierPidgin.ServiceA.Handlers
                 handler.Handle(e, c.SourceQueue, c.MessageHeader.MessageNumber);
             };
 
-            Action<DomainMessageProcessor.DomainMessageProcessingContext, OrderPlacedEvent> transHandlerAction = (c,e) =>
+            Action<DomainMessageProcessingContext, OrderPlacedEvent> transHandlerAction = (c,e) =>
             {
                 var handler = new TransactionHandler<OrderPlacedEvent>(
                     Dal.Database.ConnectionString,

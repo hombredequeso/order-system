@@ -8,7 +8,7 @@ namespace CarrierPidgin.ServiceA
 {
     public static class HandlerFactory
     {
-        public static Action<DomainMessageProcessor.DomainMessageProcessingContext, object> GetHandlerForMessageType(
+        public static Action<DomainMessageProcessingContext, object> GetHandlerForMessageType(
             Type messageType)
         {
             if (messageType == typeof(SomethingHappenedEvent))

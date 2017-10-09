@@ -57,27 +57,10 @@ namespace Hdq.RestBus.Receiver
             }
         }
 
-        public class DomainMessageProcessingContext
-        {
-            public DomainMessageProcessingContext(
-                Retries retries, 
-                MessageHeader messageHeader,
-                MessageEndpointName sourceQueue)
-            {
-                Retries = retries;
-                MessageHeader = messageHeader;
-                SourceQueue = sourceQueue;
-            }
-
-            public Retries Retries { get; }
-            public MessageHeader MessageHeader { get; }
-            public MessageEndpointName SourceQueue { get; }
-        }
-
         public static IProcessMessageResult ProcessMsg(
             object msg, 
             DomainMessageProcessingContext messageContext,
-            Func<Type, Action<DomainMessageProcessor.DomainMessageProcessingContext, object>> domainMessageProcessorLookup)
+            Func<Type, Action<DomainMessageProcessingContext, object>> domainMessageProcessorLookup)
         {
             var msgType = msg.GetType();
             var msgHandler = domainMessageProcessorLookup(msgType);
