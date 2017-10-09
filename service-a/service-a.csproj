@@ -85,7 +85,6 @@
     <Compile Include="Entities\OrderStatistics.cs" />
     <Compile Include="Handlers\TransactionHandler.cs" />
     <Compile Include="Handlers\UpdateTotalOrderCountWhenOrderPlacedHandler.cs" />
-    <Compile Include="ServiceLocator.cs" />
     <Compile Include="TestDomain\TestEndpointRepository.cs" />
     <Compile Include="Handlers\WidgetizeWhenSomethingHappenedEventHandler.cs" />
     <Compile Include="MessageEndpointRepository.cs" />

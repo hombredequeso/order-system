@@ -30,9 +30,9 @@ namespace Hdq.RestBus.Receiver
                 {
                     var channelLocation = endpointState.Channel;
                     var uriBuilder = new UriBuilder(
-                            channelLocation.Scheme,
-                            channelLocation.Host,
-                            channelLocation.Port)
+                            channelLocation.HttpChannelBase.Scheme,
+                            channelLocation.HttpChannelBase.Host,
+                            channelLocation.HttpChannelBase.Port)
                         {Path = channelLocation.Path};
 
                     var startUrl = uriBuilder.ToString();

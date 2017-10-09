@@ -21,7 +21,7 @@ namespace CarrierPidgin.ServiceA.TestDomain
             {
                 new MessageEndpoint(
                     new MessageEndpointName("TestStream #1"),
-                    new HttpChannel(channelBase.Scheme, channelBase.Host, channelBase.Port, "teststream"),
+                    new HttpChannel(channelBase, "teststream"),
                     MessageEndpoint.NoMessagesProcessed, 
                     PollingDelays.DefaultDelayMs, 
                     PollingDelays.DefaultPollingErrorDelays)

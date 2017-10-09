@@ -38,9 +38,9 @@ namespace CarrierPidgin.ServiceA
                     endpoint.Name);
 
                 IHttpService ServiceCreator() => new HttpService(new UriBuilder(
-                    endpoint.Channel.Scheme, 
-                    endpoint.Channel.Host, 
-                    endpoint.Channel.Port).Uri);
+                    endpoint.Channel.HttpChannelBase.Scheme, 
+                    endpoint.Channel.HttpChannelBase.Host, 
+                    endpoint.Channel.HttpChannelBase.Port).Uri);
 
                 MessageEndpointPoller.MainInfinitePollerAsync(
                     messageEndpointState,

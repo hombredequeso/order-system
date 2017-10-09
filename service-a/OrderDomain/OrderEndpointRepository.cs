@@ -30,9 +30,7 @@ namespace CarrierPidgin.ServiceA.OrderDomain
                 new MessageEndpoint(
                     messageEndpointName,
                     new HttpChannel(
-                        channelBase.Scheme, 
-                        channelBase.Host, 
-                        channelBase.Port, 
+                        channelBase,
                         "eventstream/orderdomain/order/0,9"),
                 lmp, 
                 PollingDelays.DefaultDelayMs * 5, 
