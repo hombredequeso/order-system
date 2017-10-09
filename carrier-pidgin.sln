@@ -13,6 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "tests", "tests\tests.csproj
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Hdq.RestBus", "Hdq.RestBus\Hdq.RestBus.csproj", "{45F11050-F276-4C3C-9C6D-B50D578EDC2D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Hdq.RestBus.Tests", "Hdq.RestBus.Tests\Hdq.RestBus.Tests.csproj", "{57527FED-588D-48B3-B883-E3703821F2A7}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +41,10 @@ Global
 		{45F11050-F276-4C3C-9C6D-B50D578EDC2D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{45F11050-F276-4C3C-9C6D-B50D578EDC2D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{45F11050-F276-4C3C-9C6D-B50D578EDC2D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{57527FED-588D-48B3-B883-E3703821F2A7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{57527FED-588D-48B3-B883-E3703821F2A7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{57527FED-588D-48B3-B883-E3703821F2A7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{57527FED-588D-48B3-B883-E3703821F2A7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

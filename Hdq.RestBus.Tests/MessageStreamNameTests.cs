@@ -1,7 +1,5 @@
-﻿using CarrierPidgin.ServiceA;
-using Hdq.RestBus.Receiver;
+﻿using Hdq.RestBus.Receiver;
 using NUnit.Framework;
-using NUnit.Framework.Internal;
 
 namespace tests
 {
