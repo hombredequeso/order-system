@@ -1,16 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using CarrierPidgin.EventBus.Module;
-using CarrierPidgin.EventStore;
+using Hdq.EventStore.Core;
 using Hdq.RestBus;
-using CarrierPidgin.OrderService.Messages;
+using Hdq.OrderApi.Messages;
 using Dapper;
+using Hdq.EventBusApi.Module;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Npgsql;
 
-namespace CarrierPidgin.EventBus.Dal
+namespace Hdq.EventBusApi.Dal
 {
     public static class OrderRepository
     {

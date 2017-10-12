@@ -1,7 +1,7 @@
 ﻿using System;
 using Npgsql;
 
-namespace CarrierPidgin.OrderService.Dal
+namespace Hdq.OrderApi.Dal
 {
     public class UnitOfWork : IDisposable
     {

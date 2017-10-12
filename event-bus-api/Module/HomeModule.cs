@@ -1,6 +1,6 @@
 ﻿using Nancy;
 
-namespace CarrierPidgin.EventBus.Module
+namespace Hdq.EventBusApi.Module
 {
     public class Health
     {

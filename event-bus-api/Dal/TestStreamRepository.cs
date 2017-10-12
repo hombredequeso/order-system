@@ -1,11 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using CarrierPidgin.EventBus.Module;
 using Hdq.RestBus;
-using CarrierPidgin.TestService.Events;
+using Hdq.TestService.Events;
+using Hdq.EventBusApi.Module;
 
-namespace CarrierPidgin.EventBus.Dal
+namespace Hdq.EventBusApi.Dal
 {
     public static class TransportMessageFactory
     {

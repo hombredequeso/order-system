@@ -1,4 +1,4 @@
-﻿namespace CarrierPidgin.OrderService.ApiEntity
+﻿namespace Hdq.OrderApi.ApiEntity
 {
     public class Link
     {

@@ -6,7 +6,7 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{70CABDD8-F02E-41A3-BAB9-FFF717A228EA}</ProjectGuid>
     <OutputType>Exe</OutputType>
-    <RootNamespace>CarrierPidgin.EventBus</RootNamespace>
+    <RootNamespace>Hdq.EventBusApi</RootNamespace>
     <AssemblyName>event-bus-api</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
@@ -121,9 +121,9 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Hdq.RestBus\Hdq.RestBus.csproj">
-      <Project>{45f11050-f276-4c3c-9c6d-b50d578edc2d}</Project>
-      <Name>Hdq.RestBus</Name>
+    <ProjectReference Include="..\Hdq.RestBus.Core\Hdq.RestBus.Core.csproj">
+      <Project>{b30af9e3-6464-4de9-a08b-69ef64b945f2}</Project>
+      <Name>Hdq.RestBus.Core</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

@@ -6,7 +6,7 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{0F04D188-F2CA-4DE6-8686-B6B50A06D508}</ProjectGuid>
     <OutputType>Exe</OutputType>
-    <RootNamespace>CarrierPidgin.OrderService</RootNamespace>
+    <RootNamespace>Hdq.OrderApi</RootNamespace>
     <AssemblyName>order-api</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>

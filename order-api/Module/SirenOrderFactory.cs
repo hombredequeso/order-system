@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using CarrierPidgin.OrderService.ApiEntity;
-using CarrierPidgin.OrderService.Domain;
-using Action = CarrierPidgin.OrderService.ApiEntity.Action;
-using OrderLine = CarrierPidgin.OrderService.ApiEntity.OrderLine;
+using Hdq.OrderApi.ApiEntity;
+using Hdq.OrderApi.Domain;
+using Action = Hdq.OrderApi.ApiEntity.Action;
+using OrderLine = Hdq.OrderApi.ApiEntity.OrderLine;
 
-namespace CarrierPidgin.OrderService.Module
+namespace Hdq.OrderApi.Module
 {
 
     public static class SirenOrderFactory
@@ -32,16 +32,16 @@ namespace CarrierPidgin.OrderService.Module
                 new Link() {Href = $"{resourceUrl}", Rel = new[] {"self"}}
             };
 
-            var actions = new List<Action>();
+            var actions = new List<ApiEntity.Action>();
 
             if (order.Status == Order.State.Active)
             {
-                actions.Add(new Action(){Name="cancel-order", HRef = $"{resourceUrl}/cancellation", Method= "POST"});
+                actions.Add(new ApiEntity.Action(){Name="cancel-order", HRef = $"{resourceUrl}/cancellation", Method= "POST"});
             }
 
             if (order.Status == Order.State.Cancelled)
             {
-                actions.Add(new Action(){Name="activate-order", HRef = $"{resourceUrl}/activation", Method= "POST"});
+                actions.Add(new ApiEntity.Action(){Name="activate-order", HRef = $"{resourceUrl}/activation", Method= "POST"});
             }
 
             var orderProperties = new OrderSirenProperties()
@@ -63,9 +63,9 @@ namespace CarrierPidgin.OrderService.Module
         }
 
 
-        public static OrderLine GetLine(Domain.OrderLine domainLine)
+        public static ApiEntity.OrderLine GetLine(Domain.OrderLine domainLine)
         {
-            return new OrderLine()
+            return new ApiEntity.OrderLine()
             {
                 ItemId = domainLine.ItemId,
                 PricePerItem = domainLine.PricePerItem,

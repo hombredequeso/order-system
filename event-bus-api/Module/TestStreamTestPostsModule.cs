@@ -1,10 +1,10 @@
-﻿using CarrierPidgin.EventBus.Dal;
-using Hdq.RestBus;
-using CarrierPidgin.TestService.Events;
+﻿using Hdq.RestBus;
+using Hdq.TestService.Events;
+using Hdq.EventBusApi.Dal;
 using Nancy;
 using Nancy.ModelBinding;
 
-namespace CarrierPidgin.EventBus.Module
+namespace Hdq.EventBusApi.Module
 {
     public class SomethingHappenedPostData
     {

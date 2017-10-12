@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace CarrierPidgin.OrderService.Messages
+namespace Hdq.OrderApi.Messages
 {
     public interface IOrderEvent
     {

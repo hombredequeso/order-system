@@ -4,12 +4,11 @@ using System.Linq;
 using Dapper;
 using Newtonsoft.Json;
 using Npgsql;
+using Hdq.EventStore.Core;
+using Hdq.OrderApi.Domain;
+using Hdq.OrderApi.Messages;
 
-using CarrierPidgin.OrderService.Domain;
-using CarrierPidgin.EventStore;
-using CarrierPidgin.OrderService.Messages;
-
-namespace CarrierPidgin.OrderService.Dal
+namespace Hdq.OrderApi.Dal
 {
     public static class OrderRepository
     {

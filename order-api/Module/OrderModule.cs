@@ -1,14 +1,14 @@
 ﻿using System;
 using System.Linq;
-using CarrierPidgin.OrderService.ApiEntity;
-using CarrierPidgin.OrderService.Dal;
-using CarrierPidgin.OrderService.Domain;
+using Hdq.OrderApi.ApiEntity;
+using Hdq.OrderApi.Dal;
+using Hdq.OrderApi.Domain;
 using Nancy;
 using Nancy.ModelBinding;
 using Npgsql;
-using OrderLine = CarrierPidgin.OrderService.ApiEntity.OrderLine;
+using OrderLine = Hdq.OrderApi.ApiEntity.OrderLine;
 
-namespace CarrierPidgin.OrderService.Module
+namespace Hdq.OrderApi.Module
 {
     public class OrderModule : NancyModule
     {
@@ -82,7 +82,7 @@ namespace CarrierPidgin.OrderService.Module
             };
         }
 
-        private static Domain.OrderLine ToDomainLine(OrderLine l)
+        private static Domain.OrderLine ToDomainLine(ApiEntity.OrderLine l)
         {
             return new Domain.OrderLine(l.ItemId, l.Quantity, l.PricePerItem);
         }

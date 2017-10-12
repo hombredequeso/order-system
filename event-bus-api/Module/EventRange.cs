@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace CarrierPidgin.EventBus.Module
+namespace Hdq.EventBusApi.Module
 {
     public class EventRange
     {

@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace CarrierPidgin.OrderService.ApiEntity
+namespace Hdq.OrderApi.ApiEntity
 {
     // Reference for Siren definition:
     // https://github.com/kevinswiber/siren

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace CarrierPidgin.OrderService.ApiEntity
+namespace Hdq.OrderApi.ApiEntity
 {
     public class OrderSirenProperties
     {

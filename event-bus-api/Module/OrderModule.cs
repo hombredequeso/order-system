@@ -1,15 +1,10 @@
 ﻿using System;
-using System.IO;
-using System.Linq;
-using System.Text;
-using CarrierPidgin.EventBus.Dal;
+using Hdq.EventBusApi.Dal;
 using Hdq.RestBus;
 using Nancy;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using Npgsql;
 
-namespace CarrierPidgin.EventBus.Module
+namespace Hdq.EventBusApi.Module
 {
     public class OrderModule: NancyModule
     {

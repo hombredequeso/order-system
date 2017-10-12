@@ -1,9 +1,9 @@
 ﻿using System;
-using CarrierPidgin.EventBus.Dal;
+using Hdq.EventBusApi.Dal;
 using Hdq.RestBus;
 using Nancy;
 
-namespace CarrierPidgin.EventBus.Module
+namespace Hdq.EventBusApi.Module
 {
     public class TestStreamModule: NancyModule
     {

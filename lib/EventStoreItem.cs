@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace CarrierPidgin.EventStore
+namespace Hdq.EventStore.Core
 {
     public class EventStoreItem
     {

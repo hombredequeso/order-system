@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using CarrierPidgin.OrderService.Messages;
+using Hdq.OrderApi.Messages;
 
-namespace CarrierPidgin.OrderService.Domain
+namespace Hdq.OrderApi.Domain
 {
     public class OrderLine
     {
