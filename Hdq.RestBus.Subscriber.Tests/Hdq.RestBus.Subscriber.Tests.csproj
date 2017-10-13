@@ -39,6 +39,9 @@
     <Reference Include="Hdq.Lib, Version=0.1.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Hdq.Lib.0.1.0\lib\net461\Hdq.Lib.dll</HintPath>
     </Reference>
+    <Reference Include="Hdq.RestBus.Core, Version=0.1.0.3, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Hdq.RestBus.Core.0.1.0.3\lib\net461\Hdq.RestBus.Core.dll</HintPath>
+    </Reference>
     <Reference Include="Newtonsoft.Json, Version=10.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.10.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
@@ -66,10 +69,6 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Hdq.RestBus.Core\Hdq.RestBus.Core.csproj">
-      <Project>{b30af9e3-6464-4de9-a08b-69ef64b945f2}</Project>
-      <Name>Hdq.RestBus.Core</Name>
-    </ProjectReference>
     <ProjectReference Include="..\Hdq.RestBus.Subscriber\Hdq.RestBus.Subscriber.csproj">
       <Project>{45f11050-f276-4c3c-9c6d-b50d578edc2d}</Project>
       <Name>Hdq.RestBus.Subscriber</Name>

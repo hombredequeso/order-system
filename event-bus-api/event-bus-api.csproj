@@ -43,6 +43,9 @@
     <Reference Include="FastExpressionCompiler, Version=1.1.1.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\FastExpressionCompiler.1.1.1\lib\net452\FastExpressionCompiler.dll</HintPath>
     </Reference>
+    <Reference Include="Hdq.RestBus.Core, Version=0.1.0.3, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Hdq.RestBus.Core.0.1.0.3\lib\net461\Hdq.RestBus.Core.dll</HintPath>
+    </Reference>
     <Reference Include="Marten, Version=2.0.0.51134, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Marten.2.2.0\lib\net46\Marten.dll</HintPath>
     </Reference>
@@ -119,12 +122,6 @@
   <ItemGroup>
     <None Include="App.config" />
     <None Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Hdq.RestBus.Core\Hdq.RestBus.Core.csproj">
-      <Project>{b30af9e3-6464-4de9-a08b-69ef64b945f2}</Project>
-      <Name>Hdq.RestBus.Core</Name>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
