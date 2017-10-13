@@ -2,7 +2,7 @@
 
 This is a project intended for eductional purposes. It is directed towards anyone wanting to see an example of a messaging framework with a contrived domain example, primarily in C#.
 
-For documentation about various parts of the project and the patterns used, see the project [wiki](https://github.com/hombredequeso/carrier-pidgin/wiki).
+For documentation about various parts of the project and the patterns used, see the project [wiki](https://github.com/hombredequeso/order-system/wiki).
 
 The project has two main parts:
 * Implementation of an http based bus for interdomain communication.
@@ -15,13 +15,6 @@ The http bus design is based on Vaughn Vernon's example in _Implementing Domain-
 Aside from a few low-level libraries concerned with such things as serialization, database access, and unit testing, there is very little in the way of libraries. There is no Ioc container. There is nothing above the low-level database access, so sql commands must be written. This is not because higher-level libraries are evil -- personally I suggest you use them -- but to illustrate as explicitly as possible the complete workings of the system.
 
 Is this object-oriented, or functional? Probably this project is a bit split brain. I'd rather be writing functional, but it started with C# because that is what the eductional situation initially demanded. For anyone familiar with functional programming it is probably clear that my C# is pining to be truly functional. (and whether you agree or not, one of the lower-level libraries I use is a C# option library. Surely 'option' isn't a higher level construct is it?).
-
-### Why Pidgin?
-No it's not misspelt. Originally I was going to call it carrier-pigeon, because it, you know, carries messages around.
-But the [fount of wisdom](https://en.wikipedia.org/wiki/Pidgin) has this to say about pidgin:
-"is a grammatically simplified means of communication that develops between two or more groups that do not have a language in common: typically, a mixture of simplified languages or a simplified primary language with other languages' elements included."
-
-And that language is http.
 
 ## Getting Started
 
