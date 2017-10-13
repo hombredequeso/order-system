@@ -42,8 +42,17 @@
     <Reference Include="Hdq.Lib, Version=0.1.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Hdq.Lib.0.1.0\lib\net461\Hdq.Lib.dll</HintPath>
     </Reference>
+    <Reference Include="Hdq.RestBus.Core, Version=0.1.0.3, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Hdq.RestBus.Core.0.1.0.3\lib\net461\Hdq.RestBus.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="Hdq.RestBus.Subscriber, Version=0.0.1.7, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Hdq.RestBus.Subscriber.0.0.1.7\lib\net461\Hdq.RestBus.Subscriber.dll</HintPath>
+    </Reference>
     <Reference Include="Newtonsoft.Json, Version=10.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.10.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="NLog, Version=4.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c, processorArchitecture=MSIL">
+      <HintPath>..\packages\NLog.4.4.12\lib\net45\NLog.dll</HintPath>
     </Reference>
     <Reference Include="Npgsql, Version=3.2.5.0, Culture=neutral, PublicKeyToken=5d8b90d52f46fda7, processorArchitecture=MSIL">
       <HintPath>..\packages\Npgsql.3.2.5\lib\net451\Npgsql.dll</HintPath>
@@ -76,13 +85,11 @@
     <Compile Include="TestConfig.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="packages.config" />
+    <None Include="packages.config">
+      <SubType>Designer</SubType>
+    </None>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Hdq.RestBus.Subscriber\Hdq.RestBus.Subscriber.csproj">
-      <Project>{45f11050-f276-4c3c-9c6d-b50d578edc2d}</Project>
-      <Name>Hdq.RestBus.Subscriber</Name>
-    </ProjectReference>
     <ProjectReference Include="..\statistics-service\statistics-service.csproj">
       <Project>{a637739a-84a9-44c6-967b-0ca822c69021}</Project>
       <Name>statistics-service</Name>
